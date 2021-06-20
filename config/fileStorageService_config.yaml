@@ -1,0 +1,15 @@
+# api config value
+api:
+  # port of the api
+  port:
+
+# jwt secret key
+jwtKey:
+
+# db config value
+db:
+  # mongodb connection string
+  mongoUri: 
+
+  # db name
+  dbName: 
