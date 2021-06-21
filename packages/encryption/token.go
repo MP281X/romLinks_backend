@@ -46,3 +46,16 @@ func GetTokenData(token string) (map[string]interface{}, error) {
 	tokenClaims := jwtToken.Claims.(jwt.MapClaims)
 	return tokenClaims["data"].(map[string]interface{}), nil
 }
+
+// get the token data from the token
+func GetUserIdFromToken(token string) (string, error) {
+	jwtToken, err := jwt.Parse(token, func(t *jwt.Token) (interface{}, error) {
+		return []byte(config.Data.JwtKey), nil
+	})
+	if err != nil {
+		return "", err
+	}
+	// get the token data
+	tokenClaims := jwtToken.Claims.(jwt.MapClaims)
+	return tokenClaims["iss"].(string), nil
+}

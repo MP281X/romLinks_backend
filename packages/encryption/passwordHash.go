@@ -1,6 +1,7 @@
 package encryption
 
 import (
+	"github.com/pkg/errors"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -11,10 +12,9 @@ func HashPassword(password string) string {
 }
 
 // compare the hash and the password
-func ValidatePassword(password string, hashedPassword string) bool {
+func ValidatePassword(password string, hashedPassword string) error {
 	if err := bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password)); err != nil {
-		return false
-	} else {
-		return true
+		return errors.New("invalid password")
 	}
+	return nil
 }

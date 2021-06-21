@@ -21,6 +21,6 @@ func InitApi(serviceName string, routes func(*gin.RouterGroup)) {
 		MaxAge:           12 * time.Hour,
 	}))
 	routes(app.Group("/" + serviceName))
-	logger.System(serviceName + " running at http://localhost" + config.Data.Api.Port + "/" + serviceName)
+	logger.System(serviceName + " running at http://" + config.Data.Api.Port + "/" + serviceName)
 	app.Run(config.Data.Api.Port)
 }
