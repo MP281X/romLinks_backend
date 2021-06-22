@@ -25,6 +25,7 @@ func AddUser(user *UserModel) (string, error) {
 	user.Username = strings.ToLower(user.Username)
 	// check is there is user with the same username
 	var x interface{}
+	logger.DbRead("searched " + user.Username + " in the db")
 	res := UserCollection.FindOne(context.TODO(), bson.M{"username": user.Username}).Decode(&x)
 	if res == nil {
 		return "", errors.New("username already used")
@@ -34,6 +35,7 @@ func AddUser(user *UserModel) (string, error) {
 	user.Password = encryption.HashPassword(user.Password)
 
 	// add the user to the db
+	logger.DbWrite("inserted " + user.Username + " in the db")
 	id, err := UserCollection.InsertOne(context.TODO(), user)
 	if err != nil {
 		return "", errors.New("unable to add the user to the db")
@@ -52,11 +54,15 @@ func AddUser(user *UserModel) (string, error) {
 // get the user data from the db
 func UserData(token string) (*UserModel, error) {
 	var user UserModel
+	// get the user id from the token
 	id, err := encryption.GetUserIdFromToken(token)
 	if err != nil {
 		return nil, err
 	}
+	// convert the id from the token in a hex format
 	userId, _ := primitive.ObjectIDFromHex(id)
+	logger.DbRead("searched " + userId.String() + " in the db")
+	// find the user with that id
 	err = UserCollection.FindOne(context.TODO(), bson.M{"_id": userId}).Decode(&user)
 	user.Password = ""
 	if user.Ban {
@@ -72,6 +78,7 @@ func UserData(token string) (*UserModel, error) {
 func GenerateUserToken(username string, password string) (string, error) {
 	var user UserModel
 	// get the user data
+	logger.DbRead("searched " + user.Username + " in the db")
 	err := UserCollection.FindOne(context.TODO(), bson.M{"username": username}).Decode(&user)
 	if err != nil {
 		return "", errors.New("user not found")

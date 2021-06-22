@@ -4,7 +4,8 @@
 
 *.test
 
-build/*
-!build/.keep
-log/*
-!log/.keep
+*.yaml
+
+build
+log
+asset

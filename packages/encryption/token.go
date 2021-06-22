@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/MP281X/romLinks_backend/packages/config"
+	"github.com/MP281X/romLinks_backend/packages/logger"
 	"github.com/dgrijalva/jwt-go"
 )
 
@@ -31,6 +32,7 @@ func GenerateJwt(username string, tokenData *TokenData) (string, error) {
 	if err != nil {
 		return "", err
 	}
+	logger.Jwt("generated a new token for " + username)
 	return token, nil
 }
 
@@ -44,6 +46,7 @@ func GetTokenData(token string) (map[string]interface{}, error) {
 	}
 	// get the token data
 	tokenClaims := jwtToken.Claims.(jwt.MapClaims)
+	logger.Jwt("got the token data from a token")
 	return tokenClaims["data"].(map[string]interface{}), nil
 }
 
@@ -57,5 +60,6 @@ func GetUserIdFromToken(token string) (string, error) {
 	}
 	// get the token data
 	tokenClaims := jwtToken.Claims.(jwt.MapClaims)
+	logger.Jwt("got the user id from a token")
 	return tokenClaims["iss"].(string), nil
 }

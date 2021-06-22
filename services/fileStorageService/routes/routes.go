@@ -7,6 +7,8 @@ import (
 
 func FileStorageRoutes(app *gin.RouterGroup) {
 	app.GET("/", root)
+	app.GET("/:category/:name", getImage)
+	app.POST("/image", saveImage)
 }
 
 func root(c *gin.Context) {
