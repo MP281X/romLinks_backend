@@ -1,15 +1,16 @@
 package api
 
 import (
+	"os"
 	"time"
 
-	"github.com/MP281X/romLinks_backend/packages/config"
 	"github.com/MP281X/romLinks_backend/packages/logger"
 	"github.com/gin-contrib/cors"
+	"github.com/gin-contrib/gzip"
 	"github.com/gin-gonic/gin"
 )
 
-func InitApi(serviceName string, routes func(*gin.RouterGroup)) {
+func InitApi(routes func(*gin.RouterGroup)) {
 	gin.SetMode(gin.ReleaseMode)
 	app := gin.New()
 	app.Use(cors.New(cors.Config{
@@ -20,7 +21,8 @@ func InitApi(serviceName string, routes func(*gin.RouterGroup)) {
 		AllowCredentials: false,
 		MaxAge:           12 * time.Hour,
 	}))
-	routes(app.Group("/" + serviceName))
-	logger.System(serviceName + " running at http://" + config.Data.Api.Port + "/" + serviceName)
-	app.Run(config.Data.Api.Port)
+	app.Use(gzip.Gzip(gzip.BestCompression))
+	routes(app.Group("/" + os.Getenv("servicename")))
+	logger.System(os.Getenv("servicename") + " running at http://" + os.Getenv("port") + "/" + os.Getenv("servicename"))
+	app.Run(os.Getenv("port"))
 }

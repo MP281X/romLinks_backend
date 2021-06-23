@@ -12,10 +12,12 @@ import (
 const serviceName string = "fileStorageService"
 
 func main() {
-	logger.InitLogger(serviceName)
-	config.LoadConfig(serviceName)
+	// set the service name in a env varaible
+	os.Setenv("servicename", "fileStorageService")
+	logger.InitLogger()
+	config.LoadConfig()
 	genFolder()
-	api.InitApi(serviceName, routes.FileStorageRoutes)
+	api.InitApi(routes.FileStorageRoutes)
 }
 
 func genFolder() {
@@ -24,5 +26,6 @@ func genFolder() {
 	os.Mkdir("./asset/logo", os.ModePerm)
 	os.Mkdir("./asset/other", os.ModePerm)
 	os.Mkdir("./asset/screenshot", os.ModePerm)
+	os.Mkdir("./asset/devicePhoto", os.ModePerm)
 	logger.System("created the asset folder")
 }

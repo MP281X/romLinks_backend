@@ -1,6 +1,8 @@
 package main
 
 import (
+	"os"
+
 	"github.com/MP281X/romLinks_backend/packages/api"
 	"github.com/MP281X/romLinks_backend/packages/config"
 	"github.com/MP281X/romLinks_backend/packages/db"
@@ -8,11 +10,11 @@ import (
 	"github.com/MP281X/romLinks_backend/services/romService/routes"
 )
 
-const serviceName string = "romService"
-
 func main() {
-	logger.InitLogger(serviceName)
-	config.LoadConfig(serviceName)
+	// set the service name in a env varaible
+	os.Setenv("servicename", "romService")
+	logger.InitLogger()
+	config.LoadConfig()
 	db.InitDB()
-	api.InitApi(serviceName, routes.RomRoutes)
+	api.InitApi(routes.RomRoutes)
 }

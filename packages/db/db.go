@@ -2,9 +2,9 @@ package db
 
 import (
 	"context"
+	"os"
 	"time"
 
-	"github.com/MP281X/romLinks_backend/packages/config"
 	"github.com/MP281X/romLinks_backend/packages/logger"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -12,7 +12,7 @@ import (
 
 func InitDB() *mongo.Database {
 	// initialize mongodb client
-	client, err := mongo.NewClient(options.Client().ApplyURI(config.Data.Db.MongoUri))
+	client, err := mongo.NewClient(options.Client().ApplyURI(os.Getenv("mongoUri")))
 	if err != nil {
 		logger.FatalErr("unable to initialize the mongodb client")
 	}
@@ -26,7 +26,6 @@ func InitDB() *mongo.Database {
 	defer cancel()
 
 	logger.System("db initalized")
-
 	// return the db instance
-	return client.Database(config.Data.Db.DbName)
+	return client.Database(os.Getenv("servicename"))
 }

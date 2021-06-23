@@ -11,7 +11,7 @@ type UserModel struct {
 	ID        primitive.ObjectID `bson:"_id,omitempty" json:"_id,omitempty"`
 	Username  string             `bson:"username" json:"username"`
 	Email     string             `bson:"email" json:"email"`
-	Password  string             `bson:"password" json:"password"`
+	Password  string             `bson:"password" json:"password,omitempty"`
 	SavedRom  []string           `bson:"savedRom" json:"savedRom"`
 	Dev       *DevModel          `bson:"dev" json:"dev"`
 	Moderator bool               `bson:"moderator" json:"moderator"`
@@ -24,6 +24,7 @@ type DevModel struct {
 	Verified bool     `bson:"verified" json:"verified"`
 }
 
+//validate the user data
 func (user *UserModel) ValidateUserData() error {
 	// validate username
 	if user.Username == "" {

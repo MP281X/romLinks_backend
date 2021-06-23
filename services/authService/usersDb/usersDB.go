@@ -23,13 +23,6 @@ func AddUser(user *UserModel) (string, error) {
 		return "", err
 	}
 	user.Username = strings.ToLower(user.Username)
-	// check is there is user with the same username
-	var x interface{}
-	logger.DbRead("searched " + user.Username + " in the db")
-	res := UserCollection.FindOne(context.TODO(), bson.M{"username": user.Username}).Decode(&x)
-	if res == nil {
-		return "", errors.New("username already used")
-	}
 
 	// hash the password
 	user.Password = encryption.HashPassword(user.Password)
@@ -38,6 +31,10 @@ func AddUser(user *UserModel) (string, error) {
 	logger.DbWrite("inserted " + user.Username + " in the db")
 	id, err := UserCollection.InsertOne(context.TODO(), user)
 	if err != nil {
+		if strings.Contains(err.Error(), "duplicate key error") {
+			return "", errors.New("username or email already used")
+
+		}
 		return "", errors.New("unable to add the user to the db")
 	}
 	userId := fmt.Sprintf("%v", id.InsertedID)

@@ -7,6 +7,9 @@ import (
 
 func DeviceRoutes(app *gin.RouterGroup) {
 	app.GET("/", root)
+	app.POST("/devices", addDevice)
+	app.GET("/devices/:codename", getDevice)
+	app.PUT("/devices", editDevice)
 }
 
 func root(c *gin.Context) {

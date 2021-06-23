@@ -18,7 +18,7 @@ func getImage(c *gin.Context) {
 	// build the path
 	path := "./asset/" + category + "/" + fileName
 
-	logger.Info("file sended: " + fileName)
+	logger.Info("file sended: " + category + "/" + fileName)
 	if _, err := os.Stat(path); os.IsNotExist(err) {
 		logger.Err("image not found")
 		c.JSON(404, gin.H{
@@ -44,8 +44,7 @@ func saveImage(c *gin.Context) {
 	filePath := "./asset/" + category + "/"
 	// build the file name
 	fileName := romName + androidVersion + "_" + newuuid.String() + "." + format
-	logger.Info(filePath)
-
+	logger.Info("new image: " + category + "/" + fileName)
 	// get the file from the body
 	file, err := c.FormFile("file")
 	if err != nil {
@@ -60,5 +59,7 @@ func saveImage(c *gin.Context) {
 		})
 		return
 	}
-	c.File(filePath + fileName)
+	c.JSON(200, gin.H{
+		"imgLink": category + "/" + fileName,
+	})
 }

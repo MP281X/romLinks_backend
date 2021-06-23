@@ -19,7 +19,8 @@ type logStruct struct {
 
 var l *logStruct
 
-func InitLogger(serviceName string) {
+func InitLogger() {
+	serviceName := os.Getenv("servicename")
 	os.Mkdir("log", os.ModePerm)
 	logFile, err := os.OpenFile("./log/"+serviceName+".log",
 		os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
@@ -36,6 +37,7 @@ func InitLogger(serviceName string) {
 		ginLog:     log.New(logFile, "Gin: ", log.Ltime|log.Ldate|log.Lmsgprefix),
 		tokenLog:   log.New(logFile, "Jwt: ", log.Ltime|log.Ldate|log.Lmsgprefix),
 	}
+	log.New(logFile, "", log.Lmsgprefix).Println("________________________________________________________________________________________")
 	System(serviceName)
 	System("logger initialized")
 }
@@ -49,13 +51,13 @@ func Err(msg string) {
 // database read log
 func DbRead(msg string) {
 	l.dbReadLog.Println(msg)
-	fmt.Println("\033[32m", "Db read:	 ", msg)
+	fmt.Println("\033[32m", "Db read: ", msg)
 }
 
 // database write log
 func DbWrite(msg string) {
 	l.dbWriteLog.Println(msg)
-	fmt.Println("\033[32m", "Db write:	 ", msg)
+	fmt.Println("\033[32m", "Db write: ", msg)
 }
 
 // info log
@@ -80,11 +82,11 @@ func FatalErr(msg string) {
 // gin Log
 func Gin(msg string) {
 	l.ginLog.Println(msg)
-	fmt.Println("\033[33m", "Gin:	", msg)
+	fmt.Println("\033[33m", "Gin: ", msg)
 }
 
 // jwt token log
 func Jwt(msg string) {
 	l.tokenLog.Println(msg)
-	fmt.Println("\033[33m", "Token:	", msg)
+	fmt.Println("\033[33m", "Token: ", msg)
 }

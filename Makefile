@@ -28,7 +28,6 @@ clear_asset:
 
 # build all the service
 buildAll:
-	go mod download
 	mkdir ./build
 	go build -o ./build ./services/authService/authService.go
 	go build -o ./build ./services/deviceService/deviceService.go
