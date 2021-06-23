@@ -5,8 +5,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func DeviceRoutes(app *gin.RouterGroup) {
-	app.GET("/", root)
+func DeviceRoutes(app *gin.Engine) {
+	app.GET("/deviceService", root)
 	app.POST("/devices", addDevice)
 	app.GET("/devices/:codename", getDevice)
 	app.PUT("/devices", editDevice)

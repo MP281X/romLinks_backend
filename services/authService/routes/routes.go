@@ -6,8 +6,8 @@ import (
 )
 
 // contains all the service routes
-func AuthRoutes(app *gin.RouterGroup) {
-	app.GET("/", root)
+func AuthRoutes(app *gin.Engine) {
+	app.GET("/authService", root)
 
 	app.POST("/user", singUp)
 	app.GET("/user", logIn)

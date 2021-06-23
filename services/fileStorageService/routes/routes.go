@@ -5,8 +5,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func FileStorageRoutes(app *gin.RouterGroup) {
-	app.GET("/", root)
+func FileStorageRoutes(app *gin.Engine) {
+	app.GET("/fileStorageService", root)
 	app.GET("/:category/:name", getImage)
 	app.POST("/image", saveImage)
 }

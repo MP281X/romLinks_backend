@@ -5,8 +5,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func RomRoutes(app *gin.RouterGroup) {
-	app.GET("/", root)
+func RomRoutes(app *gin.Engine) {
+	app.GET("/romService", root)
 }
 
 func root(c *gin.Context) {
