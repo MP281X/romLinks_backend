@@ -1,4 +1,4 @@
-package routes
+package filehandler
 
 import (
 	"os"
@@ -9,8 +9,15 @@ import (
 	"github.com/gofrs/uuid"
 )
 
-func getImage(c *gin.Context) {
-	logger.Gin("get image")
+type Log struct {
+	L *logger.LogStruct
+}
+
+//TODO: testare
+func (l *Log) getImage(c *gin.Context) {
+
+	l.L.Routes("get image")
+
 	// get the params from the url
 	category := strings.ToLower(c.Param("category"))
 	fileName := strings.ToLower(c.Param("name"))
@@ -18,33 +25,42 @@ func getImage(c *gin.Context) {
 	// build the path
 	path := "./asset/" + category + "/" + fileName
 
-	logger.Info("file sended: " + category + "/" + fileName)
+	// check if the file exist
 	if _, err := os.Stat(path); os.IsNotExist(err) {
-		logger.Err("image not found")
+		l.L.Err("image not found")
 		c.JSON(404, gin.H{
 			"err": "image not found",
 		})
 		return
 	}
 
+	l.L.SendFile("sended an image")
+
 	// return the file
 	c.File(path)
 }
 
-func saveImage(c *gin.Context) {
-	logger.Gin("save image")
+func (l *Log) saveImage(c *gin.Context) {
+
+	l.L.Routes("save image")
+
 	// get the image info from the header
 	category := c.GetHeader("category")
 	romName := c.GetHeader("romName")
 	androidVersion := c.GetHeader("androidVersion")
 	format := c.GetHeader("format")
+
 	// generate a new uuid
 	newuuid, _ := uuid.NewV4()
+
 	// build the file path
 	filePath := "./asset/" + category + "/"
+
 	// build the file name
 	fileName := romName + androidVersion + "_" + newuuid.String() + "." + format
-	logger.Info("new image: " + category + "/" + fileName)
+
+	l.L.FileSave("saved an image in the " + category + " directory")
+
 	// get the file from the body
 	file, err := c.FormFile("file")
 	if err != nil {
@@ -53,12 +69,16 @@ func saveImage(c *gin.Context) {
 		})
 	}
 
+	// save the file
 	if err := c.SaveUploadedFile(file, filePath+fileName); err != nil {
+
 		c.JSON(500, gin.H{
 			"msg": "unable to save the image",
 		})
 		return
 	}
+
+	// send the file link
 	c.JSON(200, gin.H{
 		"imgLink": category + "/" + fileName,
 	})

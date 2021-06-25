@@ -12,54 +12,53 @@ import (
 type TokenData struct {
 	Verified  bool
 	Moderator bool
+	Username  string
 }
 
 // generate a jwt token from the username
-func GenerateJwt(username string, tokenData *TokenData) (string, error) {
+func GenerateJwt(userId string, tokenData *TokenData) (string, error) {
+
 	claims := &jwt.MapClaims{
-		"iss": username,
+		"iss": userId,
 		"iat": time.Now().Unix(),
 		"exp": time.Now().Add(time.Hour).Unix(),
 		"data": map[string]interface{}{
 			"verified":  tokenData.Verified,
 			"moderator": tokenData.Moderator,
+			"username":  tokenData.Username,
 		},
 	}
+
 	// create the jwt token
 	jwtToken := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+
 	// sing the token
 	token, err := jwtToken.SignedString([]byte(os.Getenv("jwtKey")))
 	if err != nil {
-		return "", err
+		return "", logger.ErrTokenGen
 	}
-	logger.Jwt("generated a new token for " + username)
+
 	return token, nil
 }
 
 // get the token data from the token
-func GetTokenData(token string) (map[string]interface{}, error) {
-	jwtToken, err := jwt.Parse(token, func(t *jwt.Token) (interface{}, error) {
-		return []byte(os.Getenv("jwtKey")), nil
-	})
-	if err != nil {
-		return nil, err
-	}
-	// get the token data
-	tokenClaims := jwtToken.Claims.(jwt.MapClaims)
-	logger.Jwt("got the token data from a token")
-	return tokenClaims["data"].(map[string]interface{}), nil
-}
+func GetTokenData(token string) (*TokenData, error) {
 
-// get the token data from the token
-func GetUserIdFromToken(token string) (string, error) {
 	jwtToken, err := jwt.Parse(token, func(t *jwt.Token) (interface{}, error) {
 		return []byte(os.Getenv("jwtKey")), nil
 	})
 	if err != nil {
-		return "", err
+		return nil, logger.ErrTokenRead
 	}
-	// get the token data
+
+	// get the token data from the claims
 	tokenClaims := jwtToken.Claims.(jwt.MapClaims)
-	logger.Jwt("got the user id from a token")
-	return tokenClaims["iss"].(string), nil
+	tokenClaim := tokenClaims["data"].(map[string]interface{})
+
+	// return a struct with the token data
+	return &TokenData{
+		Username:  tokenClaim["username"].(string),
+		Moderator: tokenClaim["moderator"].(bool),
+		Verified:  tokenClaim["verified"].(bool),
+	}, nil
 }

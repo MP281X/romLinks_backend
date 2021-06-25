@@ -1,6 +1,6 @@
 # run the auth service
-authService:
-	go run ./services/authService/authService.go
+userService:
+	go run ./services/userService/userService.go
 
 # run the device service
 deviceService:

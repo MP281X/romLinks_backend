@@ -9,7 +9,7 @@ import (
 	"github.com/MP281X/romLinks_backend/packages/api"
 	"github.com/MP281X/romLinks_backend/packages/db"
 	"github.com/MP281X/romLinks_backend/packages/logger"
-	devicehandler "github.com/MP281X/romLinks_backend/services/deviceService/deviceHandler"
+	"github.com/MP281X/romLinks_backend/services/userService/userHandler"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -24,7 +24,7 @@ func main() {
 	}
 
 	// initialize the logger
-	l, err := logger.InitLogger("deviceService")
+	l, err := logger.InitLogger("authService")
 	if err != nil {
 		fmt.Println(err.Error())
 		return
@@ -32,7 +32,7 @@ func main() {
 	l.System("logger initialized")
 
 	// connect to mongodb
-	db, err := db.InitDB("deviceService")
+	db, err := db.InitDB("authService")
 	if err != nil {
 		l.Err("db initialized")
 		return
@@ -40,7 +40,7 @@ func main() {
 	l.System("db initialized")
 
 	// set the index in mongodb
-	err = setDbIndex(db)
+	err = SetDbIndex(db)
 	if err != nil {
 		l.Err("added index to the db")
 		return
@@ -48,15 +48,15 @@ func main() {
 	l.System("added index to the db")
 
 	// initialize gin
-	l.System("api running at http://" + os.Getenv("port") + "/deviceService")
+	l.System("api running at http://" + os.Getenv("port") + "/authService")
 
 	// pass the logger and the db collection to the routes handler
-	r := &devicehandler.DbLog{
+	r := &userHandler.DbLog{
 		L:  l,
-		Db: db.Collection("device"),
+		Db: db.Collection("user"),
 	}
 	// init the api with the routes
-	err = api.InitApi(r.DeviceRoutes)
+	err = api.InitApi(r.UserRoutes)
 	if err != nil {
 		l.System("unable to initialize the api")
 		return
@@ -64,16 +64,20 @@ func main() {
 }
 
 // set the mongo db index
-func setDbIndex(db *mongo.Database) error {
+func SetDbIndex(db *mongo.Database) error {
 
-	//create the index
-	index := mongo.IndexModel{
-		Keys:    bson.M{"codename": 1},
-		Options: options.Index().SetUnique(true).SetName("unique codename"),
+	// create the index
+	index1 := mongo.IndexModel{
+		Keys:    bson.M{"username": 1},
+		Options: options.Index().SetUnique(true).SetName("unique username"),
+	}
+	index2 := mongo.IndexModel{
+		Keys:    bson.M{"email": 1},
+		Options: options.Index().SetUnique(true).SetName("unique email"),
 	}
 
 	// add the index to the db
-	_, err := db.Collection("device").Indexes().CreateOne(context.TODO(), index)
+	_, err := db.Collection("user").Indexes().CreateMany(context.TODO(), []mongo.IndexModel{index1, index2})
 	if err != nil {
 		return logger.ErrDbInit
 	}

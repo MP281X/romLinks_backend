@@ -1,4 +1,4 @@
-package devicesdb
+package devicehandler
 
 import (
 	"errors"
@@ -8,7 +8,8 @@ import (
 )
 
 type DeviceModel struct {
-	ID              primitive.ObjectID `bson:"_id,omitempty" json:"_id,omitempty"`
+	ID              primitive.ObjectID `bson:"_id,omitempty" json:"-"`
+	CreatedBy       string             `bson:"createdby" json:"-"`
 	Codename        string             `bson:"codename" json:"codename"`
 	Name            string             `bson:"name" json:"name"`
 	Photo           []string           `bson:"photo" json:"photo"`

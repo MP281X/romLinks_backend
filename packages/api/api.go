@@ -4,14 +4,21 @@ import (
 	"os"
 	"time"
 
-	"github.com/MP281X/romLinks_backend/packages/logger"
 	"github.com/gin-contrib/cors"
+	"github.com/gin-contrib/gzip"
 	"github.com/gin-gonic/gin"
 )
 
-func InitApi(routes func(*gin.Engine)) {
+// initialize gin
+func InitApi(routes func(*gin.Engine)) error {
+
+	// set gin in relase mode
 	gin.SetMode(gin.ReleaseMode)
+
+	// create a new gin engine
 	app := gin.New()
+
+	// set cors
 	app.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"*"},
 		AllowMethods:     []string{"GET", "PUT", "POST", "DELETE"},
@@ -20,9 +27,13 @@ func InitApi(routes func(*gin.Engine)) {
 		AllowCredentials: false,
 		MaxAge:           12 * time.Hour,
 	}))
-	// app.Use(gzip.Gzip(gzip.BestCompression))
-	// routes(app.Group("/" + os.Getenv("servicename")))
+
+	// use gzip
+	app.Use(gzip.Gzip(gzip.BestCompression))
+
+	// pass the gin engine to the function that handle the routes
 	routes(app)
-	logger.System(os.Getenv("servicename") + " running at http://" + os.Getenv("port") + "/" + os.Getenv("servicename"))
-	app.Run(os.Getenv("port"))
+
+	// run the api on the specified port
+	return app.Run(os.Getenv("port"))
 }

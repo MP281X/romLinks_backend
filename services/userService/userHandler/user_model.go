@@ -1,9 +1,9 @@
-package usersdb
+package userHandler
 
 import (
-	"errors"
 	"strings"
 
+	"github.com/MP281X/romLinks_backend/packages/logger"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -25,28 +25,23 @@ type DevModel struct {
 }
 
 //validate the user data
-func (user *UserModel) ValidateUserData() error {
+func (user *UserModel) Validate() error {
+
 	// validate username
-	if user.Username == "" {
-		return errors.New("enter a username")
-	} else if len(user.Username) < 4 {
-		return errors.New("username is too short")
+	if user.Username == "" || len(user.Username) < 4 {
+		return logger.ErrInvUsername
 	}
 
 	// validate email
-	if user.Email == "" {
-		return errors.New("enter an email")
-	} else if !strings.Contains(user.Email, "@") || len(user.Email) < 4 {
-		return errors.New("invalid email")
+	if user.Email == "" || !strings.Contains(user.Email, "@") || len(user.Email) < 10 {
+		return logger.ErrInvEmail
 	}
-
 	// validate password
-	if user.Password == "" {
-		return errors.New("enter a password")
-	} else if len(user.Password) < 6 {
-		return errors.New("password is too short")
+	if user.Password == "" || len(user.Password) < 6 {
+		return logger.ErrInvPassword
 	}
 
+	// reset the other field
 	user.SavedRom = []string{}
 	user.Moderator = false
 	user.Ban = false
@@ -54,6 +49,7 @@ func (user *UserModel) ValidateUserData() error {
 		Verified: false,
 	}
 
+	// prevent null error
 	if len(user.Dev.Link) == 0 {
 		user.Dev.Link = []string{}
 	}

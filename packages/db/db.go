@@ -10,22 +10,27 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-func InitDB() *mongo.Database {
+// initialize the connection to mongodb
+func InitDB(servicename string) (*mongo.Database, error) {
+
 	// initialize mongodb client
 	client, err := mongo.NewClient(options.Client().ApplyURI(os.Getenv("mongoUri")))
 	if err != nil {
-		logger.FatalErr("unable to initialize the mongodb client")
+		return nil, logger.ErrDbInit
 	}
+
 	ctx, cancel := context.WithTimeout(context.TODO(), 10*time.Second)
+
 	// connect to mongodb
 	err = client.Connect(ctx)
 	if err != nil {
-		logger.FatalErr("unable to connect to mongodb")
+		cancel()
+		return nil, logger.ErrDbInit
 	}
+
 	// close the connection when the service close
 	defer cancel()
 
-	logger.System("db initalized")
 	// return the db instance
-	return client.Database(os.Getenv("servicename"))
+	return client.Database(servicename), nil
 }
