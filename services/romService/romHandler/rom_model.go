@@ -9,7 +9,7 @@ import (
 )
 
 type GeneralRomModel struct {
-	ID             primitive.ObjectID `bson:"_id,omitempty" json:"_id,omitempty"`
+	ID             primitive.ObjectID `bson:"_id,omitempty" json:"-"`
 	RomName        string             `bson:"romname" json:"romname"`
 	AndroidVersion float32            `bson:"androidversion" json:"androidversion"`
 	Screenshot     []string           `bson:"screenshot" json:"screenshot"`
@@ -42,7 +42,7 @@ func (rom *GeneralRomModel) Validate() error {
 }
 
 type RomModel struct {
-	ID             primitive.ObjectID `bson:"_id,omitempty" json:"_id,omitempty"`
+	ID             primitive.ObjectID `bson:"_id,omitempty" json:"id"`
 	GeneralRomData *GeneralRomModel   `bson:"generalromdata" json:"generalromdata"`
 	Verified       bool               `bson:"verified" json:"verified"`
 	Official       bool               `bson:"official" json:"official"`
@@ -109,5 +109,5 @@ type VersionModel struct {
 	Error       []string  `bson:"error" json:"error"`
 	GappsLink   string    `bson:"gappslink" json:"gappslink"`
 	VanillaLink string    `bson:"vanillalink" json:"vanillalink"`
-	UploadedBy  string    `bson:"uploadedby" json:"uploadedby"`
+	UploadedBy  string    `bson:"uploadedby" json:"-"`
 }

@@ -10,7 +10,6 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-//TODO: manca l'autenticazione sulle routes
 // struct for the logger and the db
 type DbLog struct {
 	L  *logger.LogStruct
@@ -55,15 +54,16 @@ func (r *DbLog) editDevice(c *gin.Context) {
 	r.L.Routes("edit device")
 
 	// decode the body
-	var device *DeviceModel
+	var device *EditDeviceModel
 	data, _ := ioutil.ReadAll(c.Request.Body)
 	json.Unmarshal(data, &device)
 
 	// get the token from the header
 	token := c.GetHeader("token")
+	codename := c.GetHeader("codename")
 
 	// edit the device info
-	err := r.editDeviceDB(device, token)
+	err := r.editDeviceDB(codename, device, token)
 
 	// return a message
 	api.ApiRes(c, err, r.L, gin.H{"res": "edited the device info"})

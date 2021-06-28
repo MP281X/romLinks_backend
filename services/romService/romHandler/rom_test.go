@@ -35,11 +35,11 @@ func TestValidation(t *testing.T) {
 		},
 		Codename: "testCodename",
 		Version: []*VersionModel{
-			&VersionModel{
+			{
 				ChangeLog:   "improved ...",
 				VanillaLink: "vanilla download link",
 			},
-			&VersionModel{
+			{
 				ChangeLog:   "improved 2 ...",
 				VanillaLink: "vanilla download link 2",
 			},
@@ -77,11 +77,11 @@ func TestDBReq(t *testing.T) {
 		},
 		Codename: "testCodename",
 		Version: []*VersionModel{
-			&VersionModel{
+			{
 				ChangeLog:   "improved ...",
 				VanillaLink: "vanilla download link",
 			},
-			&VersionModel{
+			{
 				ChangeLog:   "improved 2 ...",
 				VanillaLink: "vanilla download link 2",
 			},

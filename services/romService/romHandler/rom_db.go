@@ -65,9 +65,9 @@ func (r *DbLog) getRomDB(codename string, androidVersion float32, romName string
 	// search the rom in the db and decode the rom data
 	err := r.Db.FindOne(context.TODO(), bson.M{
 		"$and": []bson.M{
-			bson.M{"codename": codename},
-			bson.M{"generalromdata.androidversion": androidVersion},
-			bson.M{"generalromdata.romname": romName},
+			{"codename": codename},
+			{"generalromdata.androidversion": androidVersion},
+			{"generalromdata.romname": romName},
 		},
 	}).Decode(&rom)
 	if err != nil {
@@ -143,9 +143,9 @@ func (r *DbLog) getRomListDB(codename string, androidVersion float32) ([]*RomMod
 	// search the rom in the db
 	roms, err := r.Db.Find(context.TODO(), bson.M{
 		"$and": []bson.M{
-			bson.M{"verified": true},
-			bson.M{"generalromdata.androidversion": androidVersion},
-			bson.M{"codename": codename},
+			{"verified": true},
+			{"generalromdata.androidversion": androidVersion},
+			{"codename": codename},
 		},
 	})
 	if err != nil {
@@ -174,8 +174,6 @@ func (r *DbLog) getRomListDB(codename string, androidVersion float32) ([]*RomMod
 	return romsList, nil
 }
 
-//TODO: da rifare
-//TODO: modify, only the user who created the rom page can change it, not the one who added a relase
 func (r *DbLog) editRomDB(rom *RomModel, token string) error {
 
 	// decode the token

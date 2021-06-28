@@ -14,26 +14,20 @@ fileStorageService:
 romService:
 	go run ./services/romService/romService.go
 
-# clear the log 
-clear_log:
-	sudo rm -r ./log/
+# clear the docker images
+clear_images:
+	sudo rm -r ./docker/*
 
-# clear the build
-clear_build:
-	sudo rm -r ./build/
-
-# clear the asset
-clear_asset:
-	sudo rm -r ./asset/
-
-# build all the service
+#build all the docker image
 buildAll:
-	mkdir ./build
-	go build -o ./build ./services/authService/authService.go
-	go build -o ./build ./services/deviceService/deviceService.go
-	go build -o ./build ./services/fileStorageService/fileStorageService.go
-	go build -o ./build ./services/romService/romService.go
+	docker build -f ./services/userService/Dockerfile -t user-service:latest .
+	docker build -f ./services/romService/Dockerfile -t rom-service:latest .
+	docker build -f ./services/fileStorageService/Dockerfile -t file_storage-service:latest .
+	docker build -f ./services/deviceService/Dockerfile -t device-service:latest .
 
-# download the requried go mod
-downloadGoMod:
-	go mod download
+#save all the docker image
+saveImages:
+	docker save -o ./docker/user-service.tar user-service
+	docker save -o ./docker/rom-service.tar rom-service
+	docker save -o ./docker/file_storage-service.tar file_storage-service
+	docker save -o ./docker/device-service.tar device-service

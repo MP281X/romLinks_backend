@@ -6,7 +6,7 @@ import (
 
 // contains all the service routes
 func (r *DbLog) UserRoutes(app *gin.Engine) {
-	app.GET("/authService", r.root)
+	app.GET("/userService", r.root)
 	app.PUT("/user/:username/:perm/:value", r.editUserPerm)
 	app.POST("/user", r.signUp)
 	app.GET("/user", r.logIn)

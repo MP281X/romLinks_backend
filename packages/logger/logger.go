@@ -20,7 +20,7 @@ type LogStruct struct {
 func InitLogger(serviceName string) (*LogStruct, error) {
 
 	// check if the service is in a docker container
-	docker, err := strconv.ParseBool(os.Getenv("docker"))
+	docker, err := strconv.ParseBool(os.Getenv("logFile"))
 	if err != nil {
 		docker = false
 	}

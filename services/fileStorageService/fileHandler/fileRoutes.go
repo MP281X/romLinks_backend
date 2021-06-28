@@ -13,7 +13,6 @@ type Log struct {
 	L *logger.LogStruct
 }
 
-//TODO: testare
 func (l *Log) getImage(c *gin.Context) {
 
 	l.L.Routes("get image")

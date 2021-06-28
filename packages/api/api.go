@@ -1,7 +1,6 @@
 package api
 
 import (
-	"os"
 	"time"
 
 	"github.com/gin-contrib/cors"
@@ -10,7 +9,7 @@ import (
 )
 
 // initialize gin
-func InitApi(routes func(*gin.Engine)) error {
+func InitApi(routes func(*gin.Engine), port string) error {
 
 	// set gin in relase mode
 	gin.SetMode(gin.ReleaseMode)
@@ -35,5 +34,5 @@ func InitApi(routes func(*gin.Engine)) error {
 	routes(app)
 
 	// run the api on the specified port
-	return app.Run(os.Getenv("port"))
+	return app.Run(port)
 }

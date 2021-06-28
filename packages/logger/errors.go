@@ -9,7 +9,7 @@ var ErrLog = errors.New("log init")
 var ErrApi = errors.New("api init")
 
 // db error
-var ErrDbRead = errors.New("db write")
+var ErrDbRead = errors.New("db read")
 var ErrDbWrite = errors.New("db write")
 var ErrDuplicateKey = errors.New("key already exist")
 var ErrUnauthorized = errors.New("unauthorized")

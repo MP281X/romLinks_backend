@@ -2,8 +2,6 @@ package main
 
 import (
 	"fmt"
-	"os"
-	"strconv"
 
 	"github.com/MP281X/romLinks_backend/packages/api"
 	"github.com/MP281X/romLinks_backend/packages/db"
@@ -12,12 +10,6 @@ import (
 )
 
 func main() {
-
-	// set the port if it isn't running in a docker container
-	_, err := strconv.ParseBool(os.Getenv("docker"))
-	if err != nil {
-		os.Setenv("port", "localhost:9093")
-	}
 
 	// initialize the logger
 	l, err := logger.InitLogger("romService")
@@ -36,7 +28,7 @@ func main() {
 	l.System("db initialized")
 
 	// initialize gin
-	l.System("api running at http://" + os.Getenv("port") + "/romService")
+	l.System("api running at http://0.0.0.0:9092/romService")
 
 	// pass the logger and the db collection to the routes handler
 	r := &romhandler.DbLog{
@@ -44,7 +36,7 @@ func main() {
 		Db: db.Collection("rom"),
 	}
 	// init the api with the routes
-	err = api.InitApi(r.RomRoutes)
+	err = api.InitApi(r.RomRoutes, ":9092")
 	if err != nil {
 		l.System("unable to initialize the api")
 		return

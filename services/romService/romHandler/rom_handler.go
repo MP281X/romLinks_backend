@@ -86,7 +86,6 @@ func (r *DbLog) approveRom(c *gin.Context) {
 
 }
 
-//TODO: da rifare
 //get a list of verified rom
 func (r *DbLog) getRomList(c *gin.Context) {
 

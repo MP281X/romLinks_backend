@@ -20,6 +20,13 @@ type DeviceModel struct {
 	GcamLinks       []string           `bson:"gcamlinks" json:"gcamlinks"`
 }
 
+type EditDeviceModel struct {
+	Photo           []string    `bson:"photo,omitempty" json:"photo"`
+	BootloaderLinks []string    `bson:"bootloaderlinks,omitempty" json:"bootloaderlinks"`
+	RecoveryLinks   []string    `bson:"recoverylinks,omitempty" json:"recoverylinks"`
+	GcamLinks       []string    `bson:"gcamlinks,omitempty" json:"gcamlinks"`
+	Specs           *SpecsModel `bson:"specs,omitempty" json:"specs"`
+}
 type SpecsModel struct {
 	Camera    string `bson:"camera" json:"camera"`
 	Battery   int    `bson:"battery" json:"battery"`
