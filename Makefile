@@ -31,3 +31,17 @@ saveImages:
 	docker save -o ./docker/rom-service.tar rom-service
 	docker save -o ./docker/file_storage-service.tar file_storage-service
 	docker save -o ./docker/device-service.tar device-service
+
+# disable git tracking for dockerfile
+stopGitDockerfile:
+	git update-index --assume-unchanged services/deviceService/Dockerfile
+	git update-index --assume-unchanged services/fileStorageService/Dockerfile
+	git update-index --assume-unchanged services/romService/Dockerfile
+	git update-index --assume-unchanged services/userService/Dockerfile
+
+# disable git tracking for dockerfile
+startGitDockerfile:
+	git update-index --no-assume-unchanged services/deviceService/Dockerfile
+	git update-index --no-assume-unchanged services/fileStorageService/Dockerfile
+	git update-index --no-assume-unchanged services/romService/Dockerfile
+	git update-index --no-assume-unchanged services/userService/Dockerfile
