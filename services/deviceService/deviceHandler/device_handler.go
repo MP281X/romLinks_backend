@@ -3,6 +3,7 @@ package devicehandler
 import (
 	"encoding/json"
 	"io/ioutil"
+	"strings"
 
 	"github.com/MP281X/romLinks_backend/packages/api"
 	"github.com/MP281X/romLinks_backend/packages/logger"
@@ -33,7 +34,7 @@ func (r *DbLog) addDevice(c *gin.Context) {
 	err := r.addDeviceDB(device, token)
 
 	// return a message
-	api.ApiRes(c, err, r.L, gin.H{"res": "added the device info"})
+	api.ApiRes(c, err, r.L, gin.H{"res": "added the device info", "codename": strings.ToLower(device.Codename)})
 }
 
 // return the device info
@@ -63,9 +64,9 @@ func (r *DbLog) editDevice(c *gin.Context) {
 	codename := c.GetHeader("codename")
 
 	// edit the device info
-	err := r.editDeviceDB(codename, device, token)
+	codename, err := r.editDeviceDB(codename, device, token)
 
 	// return a message
-	api.ApiRes(c, err, r.L, gin.H{"res": "edited the device info"})
+	api.ApiRes(c, err, r.L, gin.H{"res": "edited the device info", "codename": codename})
 
 }

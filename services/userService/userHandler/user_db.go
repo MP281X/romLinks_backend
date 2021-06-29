@@ -126,9 +126,9 @@ func (r *DbLog) userPermDB(token string, username string, perm string, value boo
 	if err != nil {
 		return err
 	}
-
+	fmt.Println(tokenData)
 	// check if the user has the permission
-	if !tokenData.Moderator && !tokenData.Verified {
+	if !tokenData.Moderator {
 		return logger.ErrUnauthorized
 	}
 
@@ -137,7 +137,7 @@ func (r *DbLog) userPermDB(token string, username string, perm string, value boo
 
 		// edit the user perm
 		_, err := r.Db.UpdateOne(context.TODO(), bson.M{"username": strings.ToLower(username)}, bson.D{
-			bson.E{"$set", bson.M{perm: value}},
+			{"$set", bson.M{perm: value}},
 		})
 		if err != nil {
 			return errors.New("unable to edit the user data")

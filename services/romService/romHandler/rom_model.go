@@ -9,7 +9,7 @@ import (
 )
 
 type GeneralRomModel struct {
-	ID             primitive.ObjectID `bson:"_id,omitempty" json:"-"`
+	ID             primitive.ObjectID `bson:"_id,omitempty" json:"id"`
 	RomName        string             `bson:"romname" json:"romname"`
 	AndroidVersion float32            `bson:"androidversion" json:"androidversion"`
 	Screenshot     []string           `bson:"screenshot" json:"screenshot"`

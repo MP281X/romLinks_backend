@@ -82,5 +82,5 @@ func (r *DbLog) editUserPerm(c *gin.Context) {
 	err := r.userPermDB(token, username, perm, value)
 
 	// return a message
-	api.ApiRes(c, err, r.L, gin.H{"res": "edited the permission of " + username})
+	api.ApiRes(c, err, r.L, gin.H{"res": "edited the permission", "username": username})
 }
