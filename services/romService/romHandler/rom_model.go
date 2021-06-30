@@ -8,7 +8,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-type GeneralRomModel struct {
+type RomModel struct {
 	ID             primitive.ObjectID `bson:"_id,omitempty" json:"id"`
 	RomName        string             `bson:"romname" json:"romname"`
 	AndroidVersion float32            `bson:"androidversion" json:"androidversion"`
@@ -16,9 +16,25 @@ type GeneralRomModel struct {
 	Logo           string             `bson:"logo" json:"logo"`
 	Description    string             `bson:"description" json:"description"`
 	Link           []string           `bson:"link" json:"link"`
+	Verified       bool               `bson:"verified" json:"verified"`
+	Official       bool               `bson:"official" json:"official"`
+	Codename       []string           `bson:"codename" json:"codename"`
+	Review         *ReviewModel       `bson:"review" json:"review"`
+	UploadedBy     string             `bson:"uploadedby" json:"uploadedby"`
 }
 
-func (rom *GeneralRomModel) Validate() error {
+type ReviewModel struct {
+	Battery             float32 `bson:"battery" json:"battery"`
+	BatteryRevNum       int     `bson:"batteryrevnum" json:"batteryrevnum"`
+	Performance         float32 `bson:"performance" json:"performance"`
+	PerformanceRevNum   int     `bson:"performancerevnum" json:"performancerevnum"`
+	Stability           float32 `bson:"stability" json:"stability"`
+	StabilityRevNum     int     `bson:"stabilityrevnum" json:"stabilityrevnum"`
+	Customization       float32 `bson:"customization" json:"customization"`
+	CustomizationRevNum int     `bson:"customizationrevnum" json:"customizationrevnum"`
+}
+
+func (rom *RomModel) Validate() error {
 	if rom.RomName == "" {
 		return errors.New("enter the rom name")
 	}
@@ -38,33 +54,15 @@ func (rom *GeneralRomModel) Validate() error {
 	if len(rom.Link) == 0 {
 		rom.Link = []string{}
 	}
-	return nil
-}
 
-type RomModel struct {
-	ID             primitive.ObjectID `bson:"_id,omitempty" json:"id"`
-	GeneralRomData *GeneralRomModel   `bson:"generalromdata" json:"generalromdata"`
-	Verified       bool               `bson:"verified" json:"verified"`
-	Official       bool               `bson:"official" json:"official"`
-	Codename       string             `bson:"codename" json:"codename"`
-	Review         *ReviewModel       `bson:"review" json:"review"`
-	Version        []*VersionModel    `bson:"version" json:"version"`
-}
-
-func (rom *RomModel) Validate() error {
-	if rom.GeneralRomData == nil {
-		return errors.New("enter the general rom data")
-	}
-	err := rom.GeneralRomData.Validate()
-	if err != nil {
-		return err
-	}
-
-	if rom.Codename == "" {
+	if len(rom.Codename) == 0 {
 		return errors.New("enter the device codename")
 	}
 
-	rom.Codename = strings.ToLower(rom.Codename)
+	for i, codename := range rom.Codename {
+		rom.Codename[i] = strings.ToLower(codename)
+	}
+
 	rom.Review = &ReviewModel{
 		Battery:             0.0,
 		BatteryRevNum:       0,
@@ -75,39 +73,45 @@ func (rom *RomModel) Validate() error {
 		Customization:       0.0,
 		CustomizationRevNum: 0,
 	}
-
-	if len(rom.Version) == 0 {
-		return errors.New("enter a rom relase")
-	}
-
-	for _, version := range rom.Version {
-		if len(version.Error) == 0 {
-			version.Error = []string{}
-		}
-		if version.GappsLink == "" && version.VanillaLink == "" {
-			return errors.New("enter a download link")
-		}
-
-	}
 	return nil
 }
 
-type ReviewModel struct {
-	Battery             float32 `bson:"battery" json:"battery"`
-	BatteryRevNum       int     `bson:"batteryrevnum" json:"batteryrevnum"`
-	Performance         float32 `bson:"performance" json:"performance"`
-	PerformanceRevNum   int     `bson:"performancerevnum" json:"performancerevnum"`
-	Stability           float32 `bson:"stability" json:"stability"`
-	StabilityRevNum     int     `bson:"stabilityrevnum" json:"stabilityrevnum"`
-	Customization       float32 `bson:"customization" json:"customization"`
-	CustomizationRevNum int     `bson:"customizationrevnum" json:"customizationrevnum"`
+type VersionModel struct {
+	Id          primitive.ObjectID `bson:"_id,omitempty" json:"id,omitempty"`
+	RomId       string             `bson:"romid" json:"romid"`
+	Codename    string             `bson:"codename" json:"codename"`
+	Date        time.Time          `bson:"date" json:"date"`
+	ChangeLog   string             `bson:"changelog" json:"changelog"`
+	Error       []string           `bson:"error" json:"error"`
+	GappsLink   string             `bson:"gappslink" json:"gappslink"`
+	VanillaLink string             `bson:"vanillalink" json:"vanillalink"`
+	UploadedBy  string             `bson:"uploadedby" json:"-"`
 }
 
-type VersionModel struct {
-	Date        time.Time `bson:"date" json:"date"`
-	ChangeLog   string    `bson:"changelog" json:"changelog"`
-	Error       []string  `bson:"error" json:"error"`
-	GappsLink   string    `bson:"gappslink" json:"gappslink"`
-	VanillaLink string    `bson:"vanillalink" json:"vanillalink"`
-	UploadedBy  string    `bson:"uploadedby" json:"-"`
+func (v *VersionModel) Validate() error {
+	if v.RomId == "" {
+		return errors.New("enter the rom id")
+	}
+
+	if v.Codename == "" {
+		return errors.New("enter the device codename")
+	}
+
+	v.Codename = strings.ToLower(v.Codename)
+
+	v.Date = time.Now()
+
+	if v.ChangeLog == "" {
+		return errors.New("enter the version changelog")
+
+	}
+
+	if len(v.Error) == 0 {
+		v.Error = []string{}
+	}
+
+	if v.GappsLink == "" && v.VanillaLink == "" {
+		return errors.New("enter a download link")
+	}
+	return nil
 }

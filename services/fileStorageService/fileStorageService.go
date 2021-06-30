@@ -40,7 +40,7 @@ func genFolder(l *logger.LogStruct) {
 	// create the folder structure for the file storage service
 	os.Mkdir("./asset", os.ModePerm)
 	os.Mkdir("./asset/logo", os.ModePerm)
-	os.Mkdir("./asset/other", os.ModePerm)
+	os.Mkdir("./asset/profile", os.ModePerm)
 	os.Mkdir("./asset/screenshot", os.ModePerm)
 	os.Mkdir("./asset/devicePhoto", os.ModePerm)
 	l.System("created the asset folder")

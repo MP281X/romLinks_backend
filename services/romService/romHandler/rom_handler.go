@@ -13,8 +13,9 @@ import (
 
 // struct for the logger and the db
 type DbLog struct {
-	L  *logger.LogStruct
-	Db *mongo.Collection
+	L   *logger.LogStruct
+	DbR *mongo.Collection
+	DbV *mongo.Collection
 }
 
 // add a new rom
@@ -28,10 +29,27 @@ func (r *DbLog) addRom(c *gin.Context) {
 	json.Unmarshal(data, &rom)
 
 	// add the rom to the db
-	err := r.addRomDB(rom, c.GetHeader("token"))
+	romId, err := r.addRomDB(rom, c.GetHeader("token"))
 
 	// return a message
-	api.ApiRes(c, err, r.L, gin.H{"res": "added the rom"})
+	api.ApiRes(c, err, r.L, gin.H{"res": "added the rom", "id": romId})
+}
+
+// add a new rom
+func (r *DbLog) addVersion(c *gin.Context) {
+
+	r.L.Routes("add version")
+
+	//decode the body
+	var version *VersionModel
+	data, _ := ioutil.ReadAll(c.Request.Body)
+	json.Unmarshal(data, &version)
+
+	// add the rom to the db
+	romId, err := r.addVersionDB(version, c.GetHeader("token"))
+
+	// return a message
+	api.ApiRes(c, err, r.L, gin.H{"res": "added the version", "id": romId})
 }
 
 // get the data of a rom
@@ -46,6 +64,22 @@ func (r *DbLog) getRom(c *gin.Context) {
 
 	// get the rom data
 	rom, err := r.getRomDB(codename, float32(androidVersion), romName)
+
+	// return the data of the rom
+	api.ApiRes(c, err, r.L, rom)
+
+}
+
+// get the data of a rom from the id
+func (r *DbLog) getRomById(c *gin.Context) {
+
+	r.L.Routes("get rom by id")
+
+	// get the params from the uri
+	romId := c.Param("id")
+
+	// get the rom data
+	rom, err := r.getRomByIdDB(romId)
 
 	// return the data of the rom
 	api.ApiRes(c, err, r.L, rom)
@@ -103,23 +137,19 @@ func (r *DbLog) getRomList(c *gin.Context) {
 
 }
 
-// edit the data of a rom
-func (r *DbLog) editRom(c *gin.Context) {
+//get a list of verified rom
+func (r *DbLog) getVersionList(c *gin.Context) {
 
-	r.L.Routes("edit rom")
+	r.L.Routes("get version list")
 
-	// get the token from the header
-	token := c.GetHeader("token")
+	// get the params from the uri
+	codename := c.Param("codename")
+	romId := c.Param("id")
 
-	// decode the body
-	var rom *RomModel
-	data, _ := ioutil.ReadAll(c.Request.Body)
-	json.Unmarshal(data, &rom)
+	// get the version list
+	versions, err := r.getVersionListDB(codename, romId)
 
-	// edit the rom data
-	err := r.editRomDB(rom, token)
-
-	// return a message
-	api.ApiRes(c, err, r.L, gin.H{"res": "edited the rom data"})
+	// return the version list
+	api.ApiRes(c, err, r.L, versions)
 
 }

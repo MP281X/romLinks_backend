@@ -9,7 +9,7 @@ func (r *DbLog) DeviceRoutes(app *gin.Engine) {
 	app.GET("/deviceService", r.root)
 	app.POST("/devices", r.addDevice)
 	app.GET("/devices/:codename", r.getDevice)
-	app.PUT("/devices", r.editDevice)
+	app.PUT("/devices/:codename", r.editDevice)
 }
 
 // root route

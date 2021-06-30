@@ -61,7 +61,7 @@ func (r *DbLog) editDevice(c *gin.Context) {
 
 	// get the token from the header
 	token := c.GetHeader("token")
-	codename := c.GetHeader("codename")
+	codename := c.Param("codename")
 
 	// edit the device info
 	codename, err := r.editDeviceDB(codename, device, token)

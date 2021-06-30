@@ -32,8 +32,9 @@ func main() {
 
 	// pass the logger and the db collection to the routes handler
 	r := &romhandler.DbLog{
-		L:  l,
-		Db: db.Collection("rom"),
+		L:   l,
+		DbR: db.Collection("rom"),
+		DbV: db.Collection("version"),
 	}
 	// init the api with the routes
 	err = api.InitApi(r.RomRoutes, ":9092")
