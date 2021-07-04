@@ -37,7 +37,7 @@ func main() {
 		DbV: db.Collection("version"),
 	}
 	// init the api with the routes
-	err = api.InitApi(r.RomRoutes, ":9092")
+	err = api.InitApi(r.RomRoutes, ":9092", l)
 	if err != nil {
 		l.System("unable to initialize the api")
 		return

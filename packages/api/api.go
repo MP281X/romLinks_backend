@@ -1,15 +1,19 @@
 package api
 
 import (
+	"io/ioutil"
+	"os"
+	"strconv"
 	"time"
 
+	"github.com/MP281X/romLinks_backend/packages/logger"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-contrib/gzip"
 	"github.com/gin-gonic/gin"
 )
 
 // initialize gin
-func InitApi(routes func(*gin.Engine), port string) error {
+func InitApi(routes func(*gin.Engine), port string, l *logger.LogStruct) error {
 
 	// set gin in relase mode
 	gin.SetMode(gin.ReleaseMode)
@@ -25,6 +29,34 @@ func InitApi(routes func(*gin.Engine), port string) error {
 		ExposeHeaders:    []string{""},
 		AllowCredentials: false,
 		MaxAge:           12 * time.Hour,
+	}))
+
+	// recovery middleware
+	app.Use(gin.Recovery())
+
+	// write the gin logger to noting
+	gin.DefaultWriter = ioutil.Discard
+
+	// set the color for the log
+	var cyan string = "\033[34m"
+	var cancel string = "\033[0m"
+
+	// check if the service is in a docker container
+	docker, err := strconv.ParseBool(os.Getenv("logFile"))
+	if err != nil {
+		docker = false
+	}
+
+	if docker {
+		// delete the color tag in the log file
+		cancel = ""
+		cyan = ""
+	}
+
+	// custom logger
+	app.Use(gin.LoggerWithFormatter(func(param gin.LogFormatterParams) string {
+		l.Routes(cyan + param.Method + ":	" + cancel + param.Path + cyan + " 	Latency: " + cancel + param.Latency.String())
+		return ""
 	}))
 
 	// use gzip

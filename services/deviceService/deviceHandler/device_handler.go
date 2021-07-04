@@ -20,8 +20,6 @@ type DbLog struct {
 // add a new device
 func (r *DbLog) addDevice(c *gin.Context) {
 
-	r.L.Routes("add a device")
-
 	// decode the body
 	var device *DeviceModel
 	data, _ := ioutil.ReadAll(c.Request.Body)
@@ -40,8 +38,6 @@ func (r *DbLog) addDevice(c *gin.Context) {
 // return the device info
 func (r *DbLog) getDevice(c *gin.Context) {
 
-	r.L.Routes("get device")
-
 	// get the device from the db
 	device, err := r.getDeviceDB(c.Param("codename"))
 
@@ -51,8 +47,6 @@ func (r *DbLog) getDevice(c *gin.Context) {
 
 // edit the device info
 func (r *DbLog) editDevice(c *gin.Context) {
-
-	r.L.Routes("edit device")
 
 	// decode the body
 	var device *EditDeviceModel

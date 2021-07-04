@@ -4,6 +4,7 @@ import (
 	"log"
 	"os"
 	"strconv"
+	"time"
 )
 
 type LogStruct struct {
@@ -55,8 +56,10 @@ func InitLogger(serviceName string) (*LogStruct, error) {
 		serviceName := serviceName
 		var err error
 
+		var date string = time.Now().Format("15:04 - 01 January 2006")
+
 		// open/create the log file
-		out, err = os.OpenFile("./log/"+serviceName+".log",
+		out, err = os.OpenFile("./log/"+serviceName+" -> "+date+".log",
 			os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 		if err != nil {
 			return nil, ErrLog
@@ -72,7 +75,7 @@ func InitLogger(serviceName string) (*LogStruct, error) {
 		dbRead:   log.New(out, blue+"DB read: "+cancel, flags),
 		dbWrite:  log.New(out, blue+"DB write: "+cancel, flags),
 		system:   log.New(out, green+"System: "+cancel, flags),
-		routes:   log.New(out, yellow+"Routes: "+cancel, flags),
+		routes:   log.New(out, yellow+""+cancel, flags),
 		fileSend: log.New(out, cyan+"File sended: "+cancel, flags),
 		fileSave: log.New(out, cyan+"File saved: "+cancel, flags),
 	}
@@ -117,6 +120,7 @@ func (l *LogStruct) System(msg string) {
 
 // routes log
 func (l *LogStruct) Routes(msg string) {
+
 	l.routes.Println(msg)
 	routes++
 }

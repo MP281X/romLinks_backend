@@ -48,7 +48,7 @@ func main() {
 		Db: db.Collection("user"),
 	}
 	// init the api with the routes
-	err = api.InitApi(r.UserRoutes, ":9093")
+	err = api.InitApi(r.UserRoutes, ":9093", l)
 	if err != nil {
 		l.System("unable to initialize the api")
 		return

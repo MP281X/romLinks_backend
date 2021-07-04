@@ -17,8 +17,6 @@ type Log struct {
 
 func (l *Log) getImage(c *gin.Context) {
 
-	l.L.Routes("get image")
-
 	// get the params from the url
 	category := strings.ToLower(c.Param("category"))
 	fileName := strings.ToLower(c.Param("name"))
@@ -44,14 +42,17 @@ func (l *Log) getImage(c *gin.Context) {
 
 func (l *Log) saveImage(c *gin.Context) {
 
-	l.L.Routes("save image")
-
 	// get the image info from the header
-	category := c.GetHeader("category")
-	romName := c.GetHeader("romName")
-	androidVersion := c.GetHeader("androidVersion")
-	format := c.GetHeader("format")
+	category := c.Param("category")
+	x := c.Param("name")
+	fileInfo := strings.Split(x, ".")
+	androidVersion := c.Param("androidVersion")
+	romName := fileInfo[0]
+	format := fileInfo[1]
+	fmt.Println(romName)
+	fmt.Println(format)
 
+	// check if the category is correct
 	if category != "logo" && category != "devicePhoto" && category != "screenshot" {
 		c.JSON(500, gin.H{
 			"err": "invalid category",
@@ -96,11 +97,8 @@ func (l *Log) saveImage(c *gin.Context) {
 	})
 }
 
-//TODO: mettere il controllo del token per modificare l'immagine se esiste già
 // save the profile picture of a user
 func (l *Log) saveProfilePicture(c *gin.Context) {
-
-	l.L.Routes("save profile picture")
 
 	// get the image info from the header
 	username := c.Param("username")
@@ -121,7 +119,6 @@ func (l *Log) saveProfilePicture(c *gin.Context) {
 		}
 
 		// check if the user has the same username as the profile picture
-		fmt.Println(tokenData.Username)
 		splitUsername := strings.Split(username, ".")
 		if tokenData.Username != splitUsername[0] {
 			c.JSON(500, gin.H{
@@ -132,7 +129,6 @@ func (l *Log) saveProfilePicture(c *gin.Context) {
 		}
 	}
 
-	fmt.Println(1)
 	// get the file from the body
 	file, err := c.FormFile("file")
 	if err != nil {

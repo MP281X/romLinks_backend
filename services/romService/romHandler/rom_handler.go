@@ -21,8 +21,6 @@ type DbLog struct {
 // add a new rom
 func (r *DbLog) addRom(c *gin.Context) {
 
-	r.L.Routes("add rom")
-
 	//decode the body
 	var rom *RomModel
 	data, _ := ioutil.ReadAll(c.Request.Body)
@@ -38,8 +36,6 @@ func (r *DbLog) addRom(c *gin.Context) {
 // add a new rom
 func (r *DbLog) addVersion(c *gin.Context) {
 
-	r.L.Routes("add version")
-
 	//decode the body
 	var version *VersionModel
 	data, _ := ioutil.ReadAll(c.Request.Body)
@@ -54,8 +50,6 @@ func (r *DbLog) addVersion(c *gin.Context) {
 
 // get the data of a rom
 func (r *DbLog) getRom(c *gin.Context) {
-
-	r.L.Routes("get rom")
 
 	// get the params from the uri
 	codename := c.Param("codename")
@@ -73,8 +67,6 @@ func (r *DbLog) getRom(c *gin.Context) {
 // get the data of a rom from the id
 func (r *DbLog) getRomById(c *gin.Context) {
 
-	r.L.Routes("get rom by id")
-
 	// get the params from the uri
 	romId := c.Param("id")
 
@@ -89,8 +81,6 @@ func (r *DbLog) getRomById(c *gin.Context) {
 // return a list of unverified rom
 func (r *DbLog) getUnverifiedRom(c *gin.Context) {
 
-	r.L.Routes("unverified rom")
-
 	// get the token from the header
 	token := c.GetHeader("token")
 
@@ -103,8 +93,6 @@ func (r *DbLog) getUnverifiedRom(c *gin.Context) {
 
 // approve a rom
 func (r *DbLog) approveRom(c *gin.Context) {
-
-	r.L.Routes("approve rom")
 
 	// get the romId from the uri
 	romId := c.Param("romid")
@@ -123,14 +111,13 @@ func (r *DbLog) approveRom(c *gin.Context) {
 //get a list of verified rom
 func (r *DbLog) getRomList(c *gin.Context) {
 
-	r.L.Routes("get rom list")
-
 	// get the params from the uri
 	codename := c.Param("codename")
 	androidVersion, _ := strconv.ParseFloat(c.Param("android"), 32)
+	orderby := c.Param("orderby")
 
 	// get the rom list
-	roms, err := r.getRomListDB(codename, float32(androidVersion))
+	roms, err := r.getRomListDB(codename, float32(androidVersion), orderby)
 
 	// return the rom list
 	api.ApiRes(c, err, r.L, roms)
@@ -139,8 +126,6 @@ func (r *DbLog) getRomList(c *gin.Context) {
 
 //get a list of verified rom
 func (r *DbLog) getVersionList(c *gin.Context) {
-
-	r.L.Routes("get version list")
 
 	// get the params from the uri
 	codename := c.Param("codename")

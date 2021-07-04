@@ -20,8 +20,6 @@ type DbLog struct {
 // create a new user
 func (r *DbLog) signUp(c *gin.Context) {
 
-	r.L.Routes("sign up")
-
 	// decode the body
 	var user *UserModel
 	data, _ := ioutil.ReadAll(c.Request.Body)
@@ -37,8 +35,6 @@ func (r *DbLog) signUp(c *gin.Context) {
 // return the data of a user
 func (r *DbLog) getUser(c *gin.Context) {
 
-	r.L.Routes("user data")
-
 	// get the token from the header
 	token := c.GetHeader("token")
 
@@ -51,8 +47,6 @@ func (r *DbLog) getUser(c *gin.Context) {
 
 // generate a token for the user
 func (r *DbLog) logIn(c *gin.Context) {
-
-	r.L.Routes("log in")
 
 	// get the user auth data from the header
 	username := c.GetHeader("username")
@@ -67,8 +61,6 @@ func (r *DbLog) logIn(c *gin.Context) {
 
 // edit the user permission
 func (r *DbLog) editUserPerm(c *gin.Context) {
-
-	r.L.Routes("edit perm")
 
 	// get data from the uri
 	username := c.Param("username")

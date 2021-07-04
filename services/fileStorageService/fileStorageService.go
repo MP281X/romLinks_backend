@@ -29,7 +29,7 @@ func main() {
 	r := &filehandler.Log{L: l}
 
 	// init the api with the routes
-	err = api.InitApi(r.FileStorageRoutes, ":9091")
+	err = api.InitApi(r.FileStorageRoutes, ":9091", l)
 	if err != nil {
 		l.System("unable to initialize the api")
 		return

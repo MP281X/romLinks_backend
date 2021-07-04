@@ -17,13 +17,12 @@ func (r *DbLog) RomRoutes(app *gin.Engine) {
 	app.GET("/romid/:id", r.getRomById)
 	app.GET("/verifyrom", r.getUnverifiedRom)
 	app.PUT("/verifyrom/:romid", r.approveRom)
-	app.GET("/romlist/:codename/:android", r.getRomList)
+	app.GET("/romlist/:codename/:android/*orderby", r.getRomList)
 	app.GET("/versionList/:codename/:id", r.getVersionList)
 }
 
 // root route
 func (r *DbLog) root(c *gin.Context) {
-	r.L.Routes("root")
 	c.JSON(200, gin.H{
 		"msg": "romLinks rom service",
 	})

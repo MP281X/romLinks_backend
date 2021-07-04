@@ -10,6 +10,7 @@ import (
 	"github.com/MP281X/romLinks_backend/packages/logger"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 // add a new rom to the db
@@ -145,19 +146,8 @@ func (r *DbLog) getUnverifiedRomDB(token string) ([]*RomModel, error) {
 	}
 
 	defer roms.Close(context.TODO())
-
-	// interate every result and add them to the romList slice
-	for roms.Next(context.TODO()) {
-
-		var rom RomModel
-
-		// decode the rom data
-		if err = roms.Decode(&rom); err != nil {
-			return nil, logger.ErrDbRead
-		}
-
-		// add the rom to the rom list
-		romsList = append(romsList, &rom)
+	if err = roms.All(context.TODO(), &romsList); err != nil {
+		return nil, logger.ErrDbRead
 	}
 
 	// return a list of rom unverified
@@ -173,7 +163,7 @@ func (r *DbLog) approveRomDB(romId string, token string) error {
 
 	// set true the verified filed
 	_, err := r.DbR.UpdateOne(context.TODO(), bson.M{"_id": id}, bson.D{
-		bson.E{"$set", bson.M{"verified": true}},
+		{"$set", bson.D{{"verified", true}}},
 	})
 	if err != nil {
 		return logger.ErrDbWrite
@@ -184,13 +174,19 @@ func (r *DbLog) approveRomDB(romId string, token string) error {
 	return nil
 }
 
-// //TODO: aggiungere altri filtri
-func (r *DbLog) getRomListDB(codename string, androidVersion float32) ([]*RomModel, error) {
+// //TODO: aggiungere altri filtri, official
+func (r *DbLog) getRomListDB(codename string, androidVersion float32, orderby string) ([]*RomModel, error) {
 
 	codename = strings.ToLower(codename)
 
 	// decode the rom list there
 	var romsList []*RomModel
+
+	findOptions := options.Find()
+	fmt.Println(orderby)
+	if orderby != "/" {
+		findOptions.SetSort(bson.D{{orderby[1:], -1}})
+	}
 
 	// search the rom in the db
 	roms, err := r.DbR.Find(context.TODO(), bson.M{
@@ -199,7 +195,7 @@ func (r *DbLog) getRomListDB(codename string, androidVersion float32) ([]*RomMod
 			{"androidversion": androidVersion},
 			{"codename": codename},
 		},
-	})
+	}, findOptions)
 	if err != nil {
 		return nil, logger.ErrDbRead
 	}
@@ -209,17 +205,8 @@ func (r *DbLog) getRomListDB(codename string, androidVersion float32) ([]*RomMod
 	defer roms.Close(context.TODO())
 
 	// interate every result and add them to the romList slice
-	for roms.Next(context.TODO()) {
-
-		var rom RomModel
-
-		// decode the rom data
-		if err = roms.Decode(&rom); err != nil {
-			return nil, logger.ErrDbRead
-		}
-
-		// add the rom data to the rom list
-		romsList = append(romsList, &rom)
+	if err = roms.All(context.TODO(), &romsList); err != nil {
+		return nil, logger.ErrDbRead
 	}
 
 	// return the list of rom
@@ -248,17 +235,8 @@ func (r *DbLog) getVersionListDB(codename string, romId string) ([]*VersionModel
 	defer versions.Close(context.TODO())
 
 	// interate every result and add them to the versionList slice
-	for versions.Next(context.TODO()) {
-
-		var version VersionModel
-
-		// decode the version data
-		if err = versions.Decode(&version); err != nil {
-			return nil, logger.ErrDbRead
-		}
-
-		// add the version data to the version list
-		versionList = append(versionList, &version)
+	if err = versions.All(context.TODO(), &versionList); err != nil {
+		return nil, logger.ErrDbRead
 	}
 
 	// return the list of version
