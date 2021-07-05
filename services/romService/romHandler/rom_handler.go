@@ -138,3 +138,16 @@ func (r *DbLog) getVersionList(c *gin.Context) {
 	api.ApiRes(c, err, r.L, versions)
 
 }
+
+func (r *DbLog) searchRomName(c *gin.Context) {
+
+	// get the rom name from the uri
+	romName := c.Param("name")
+
+	// get the list of rom name
+	nameList, err := r.searchRomNameDB(romName)
+
+	// return the list of rom name
+	api.ApiRes(c, err, r.L, nameList)
+
+}

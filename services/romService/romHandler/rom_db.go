@@ -140,7 +140,7 @@ func (r *DbLog) getUnverifiedRomDB(token string) ([]*RomModel, error) {
 	var romsList []*RomModel
 
 	// search the roms in the db
-	roms, err := r.DbR.Find(context.TODO(), bson.M{"verified": false})
+	roms, err := r.DbR.Find(context.TODO(), bson.M{"verified": false}, options.Find().SetSort(bson.D{}).SetLimit(20))
 	if err != nil {
 		return nil, logger.ErrDbRead
 	}
@@ -225,7 +225,7 @@ func (r *DbLog) getVersionListDB(codename string, romId string) ([]*VersionModel
 			{"romid": romId},
 			{"codename": codename},
 		},
-	})
+	}, options.Find().SetSort(bson.D{}).SetLimit(20))
 	if err != nil {
 		return nil, logger.ErrDbRead
 	}
@@ -241,4 +241,30 @@ func (r *DbLog) getVersionListDB(codename string, romId string) ([]*VersionModel
 
 	// return the list of version
 	return versionList, nil
+}
+
+// get a list of rom name
+func (r *DbLog) searchRomNameDB(romName string) ([]string, error) {
+
+	romNameList := []string{}
+
+	// search the rom name in the db
+	cursor, err := r.DbR.Find(context.TODO(), bson.M{"$text": bson.M{"$search": romName}}, options.Find().SetSort(bson.D{}).SetLimit(3))
+	if err != nil {
+		fmt.Println(err.Error())
+		return nil, logger.ErrDbRead
+	}
+
+	// add the rom name to the rom name list
+	for cursor.Next(context.TODO()) {
+
+		var name bson.M
+		if err = cursor.Decode(&name); err != nil {
+			return nil, logger.ErrDbRead
+		}
+		romNameList = append(romNameList, name["romname"].(string))
+	}
+
+	// return the rom name list
+	return romNameList, nil
 }
