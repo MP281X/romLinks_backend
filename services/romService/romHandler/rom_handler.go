@@ -88,7 +88,7 @@ func (r *DbLog) getUnverifiedRom(c *gin.Context) {
 	roms, err := r.getUnverifiedRomDB(token)
 
 	// return an unverified rom list
-	api.ApiRes(c, err, r.L, roms)
+	api.ApiRes(c, err, r.L, gin.H{"list": roms})
 }
 
 // approve a rom
@@ -120,7 +120,7 @@ func (r *DbLog) getRomList(c *gin.Context) {
 	roms, err := r.getRomListDB(codename, float32(androidVersion), orderby)
 
 	// return the rom list
-	api.ApiRes(c, err, r.L, roms)
+	api.ApiRes(c, err, r.L, gin.H{"list": roms})
 
 }
 
@@ -135,7 +135,7 @@ func (r *DbLog) getVersionList(c *gin.Context) {
 	versions, err := r.getVersionListDB(codename, romId)
 
 	// return the version list
-	api.ApiRes(c, err, r.L, versions)
+	api.ApiRes(c, err, r.L, gin.H{"list": versions})
 
 }
 
