@@ -64,3 +64,17 @@ func (r *DbLog) editDevice(c *gin.Context) {
 	api.ApiRes(c, err, r.L, gin.H{"res": "edited the device info", "codename": codename})
 
 }
+
+// get a list of device codename
+func (r *DbLog) searchDeviceName(c *gin.Context) {
+
+	// get the device name from the uri
+	romName := c.Param("name")
+
+	// get the list of device name
+	nameList, err := r.searchDeviceNameDB(romName)
+
+	// return the list of device name
+	api.ApiRes(c, err, r.L, gin.H{"list": nameList})
+
+}

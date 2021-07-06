@@ -3,11 +3,13 @@ package devicehandler
 import (
 	"context"
 	"errors"
+	"fmt"
 	"strings"
 
 	"github.com/MP281X/romLinks_backend/packages/encryption"
 	"github.com/MP281X/romLinks_backend/packages/logger"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 // add a device to the db
@@ -90,4 +92,30 @@ func (r *DbLog) editDeviceDB(codename string, device *EditDeviceModel, token str
 	r.L.DbWrite("edited the info of " + x.Codename)
 
 	return codename, nil
+}
+
+// get a list of device name
+func (r *DbLog) searchDeviceNameDB(codename string) ([]string, error) {
+
+	deviceCodenameList := []string{}
+
+	// search the rom name in the db
+	cursor, err := r.Db.Find(context.TODO(), bson.M{"$text": bson.M{"$search": codename}}, options.Find().SetSort(bson.D{}).SetLimit(3))
+	if err != nil {
+		fmt.Println(err.Error())
+		return nil, logger.ErrDbRead
+	}
+
+	// add the device name to the rom name list
+	for cursor.Next(context.TODO()) {
+
+		var name bson.M
+		if err = cursor.Decode(&name); err != nil {
+			return nil, logger.ErrDbRead
+		}
+		deviceCodenameList = append(deviceCodenameList, name["codename"].(string))
+	}
+
+	// return the device name list
+	return deviceCodenameList, nil
 }

@@ -21,9 +21,9 @@ type LogStruct struct {
 func InitLogger(serviceName string) (*LogStruct, error) {
 
 	// check if the service is in a docker container
-	docker, err := strconv.ParseBool(os.Getenv("logFile"))
+	logFile, err := strconv.ParseBool(os.Getenv("logFile"))
 	if err != nil {
-		docker = false
+		logFile = false
 	}
 
 	// pointer to a file, decide if it has to log to the console or to a file
@@ -38,7 +38,7 @@ func InitLogger(serviceName string) (*LogStruct, error) {
 	var blue string = "\033[36m"
 	var green string = "\033[32m"
 
-	if docker {
+	if logFile {
 
 		// delete the color tag in the log file
 		cancel = ""
@@ -80,7 +80,7 @@ func InitLogger(serviceName string) (*LogStruct, error) {
 		fileSave: log.New(out, cyan+"File saved: "+cancel, flags),
 	}
 
-	if docker {
+	if logFile {
 		log.New(out, "", log.Lmsgprefix).Println("________________________________________________________________________________________")
 	}
 

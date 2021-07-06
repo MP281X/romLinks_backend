@@ -42,12 +42,12 @@ func InitApi(routes func(*gin.Engine), port string, l *logger.LogStruct) error {
 	var cancel string = "\033[0m"
 
 	// check if the service is in a docker container
-	docker, err := strconv.ParseBool(os.Getenv("logFile"))
+	logFile, err := strconv.ParseBool(os.Getenv("logFile"))
 	if err != nil {
-		docker = false
+		logFile = false
 	}
 
-	if docker {
+	if logFile {
 		// delete the color tag in the log file
 		cancel = ""
 		cyan = ""

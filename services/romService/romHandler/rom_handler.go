@@ -108,7 +108,7 @@ func (r *DbLog) approveRom(c *gin.Context) {
 
 }
 
-//get a list of verified rom
+// get a list of verified rom
 func (r *DbLog) getRomList(c *gin.Context) {
 
 	// get the params from the uri
@@ -124,7 +124,7 @@ func (r *DbLog) getRomList(c *gin.Context) {
 
 }
 
-//get a list of verified rom
+// get a list of verified rom
 func (r *DbLog) getVersionList(c *gin.Context) {
 
 	// get the params from the uri
@@ -139,6 +139,7 @@ func (r *DbLog) getVersionList(c *gin.Context) {
 
 }
 
+// get a list of device codename
 func (r *DbLog) searchRomName(c *gin.Context) {
 
 	// get the rom name from the uri
@@ -148,6 +149,6 @@ func (r *DbLog) searchRomName(c *gin.Context) {
 	nameList, err := r.searchRomNameDB(romName)
 
 	// return the list of rom name
-	api.ApiRes(c, err, r.L, nameList)
+	api.ApiRes(c, err, r.L, gin.H{"list": nameList})
 
 }
