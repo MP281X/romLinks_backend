@@ -7,9 +7,5 @@ FROM alpine:3.13.5
 WORKDIR /app
 COPY --from=builder /app/deviceService .
 
-ENV jwtKey=""
-ENV mongoUri=""
-ENV logFile="false"
-
 EXPOSE 9090
 CMD [ "/app/deviceService" ]

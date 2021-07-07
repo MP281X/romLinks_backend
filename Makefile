@@ -32,22 +32,16 @@ saveImages:
 	docker save -o ./docker/file_storage-service.tar file_storage-service
 	docker save -o ./docker/device-service.tar device-service
 
-# disable git tracking for dockerfile
+# disable git tracking for docker-compose file
 stopGitDockerfile:
-	git update-index --assume-unchanged services/deviceService/Dockerfile
-	git update-index --assume-unchanged services/fileStorageService/Dockerfile
-	git update-index --assume-unchanged services/romService/Dockerfile
-	git update-index --assume-unchanged services/userService/Dockerfile
+	git update-index --assume-unchanged docker-compose.yaml
 
-# disable git tracking for dockerfile
+# disable git tracking for docker-compose file
 startGitDockerfile:
-	git update-index --no-assume-unchanged services/deviceService/Dockerfile
-	git update-index --no-assume-unchanged services/fileStorageService/Dockerfile
-	git update-index --no-assume-unchanged services/romService/Dockerfile
-	git update-index --no-assume-unchanged services/userService/Dockerfile
+	git update-index --no-assume-unchanged docker-compose.yaml
 
-romLinksBackendOn:
+runDockerCompose:
 	docker compose -f docker-compose.yaml up -d
 
-romLinksBackendOff:
+closeDockerCompose:
 	docker compose -f docker-compose.yaml down
