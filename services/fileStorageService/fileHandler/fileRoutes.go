@@ -49,8 +49,6 @@ func (l *Log) saveImage(c *gin.Context) {
 	androidVersion := c.Param("androidVersion")
 	romName := fileInfo[0]
 	format := fileInfo[1]
-	fmt.Println(romName)
-	fmt.Println(format)
 
 	// check if the category is correct
 	if category != "logo" && category != "devicePhoto" && category != "screenshot" {

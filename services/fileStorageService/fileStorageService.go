@@ -12,7 +12,7 @@ import (
 func main() {
 
 	// initialize the logger
-	l, err := logger.InitLogger("romService")
+	l, err := logger.InitLogger("fileStorageService")
 	if err != nil {
 		fmt.Println(err.Error())
 		return

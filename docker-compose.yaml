@@ -1,0 +1,59 @@
+version: '3'
+services: 
+    
+    # mongodb
+    mongodb:
+        image: mongo
+        ports: 
+            - 27017:27017
+        volumes: 
+            - mongo-data:/data/db
+
+    # device service
+    device-service:
+        image: device-service:latest
+        depends_on: 
+            - mongodb
+        ports: 
+            - 9090:9090
+        volumes: 
+            - log:/app/log
+    
+    # file storage service
+    file_storage-service:
+        image: file_storage-service:latest
+        depends_on: 
+            - mongodb
+        ports: 
+            - 9091:9091
+        volumes: 
+            - log:/app/log
+            - asset:/app/asset
+
+    # rom service
+    rom-service:
+        image: rom-service:latest
+        depends_on: 
+            - mongodb
+        ports: 
+            - 9092:9092
+        volumes: 
+            - log:/app/log
+
+    # user service
+    user-service:
+        image: user-service:latest
+        depends_on: 
+            - mongodb
+        ports: 
+            - 9093:9093
+        volumes: 
+            - log:/app/log
+
+volumes: 
+    mongo-data:
+        driver: local
+    log:
+        driver: local
+    asset:
+        driver: local

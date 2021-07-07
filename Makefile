@@ -45,3 +45,9 @@ startGitDockerfile:
 	git update-index --no-assume-unchanged services/fileStorageService/Dockerfile
 	git update-index --no-assume-unchanged services/romService/Dockerfile
 	git update-index --no-assume-unchanged services/userService/Dockerfile
+
+romLinksBackendOn:
+	docker compose -f docker-compose.yaml up -d
+
+romLinksBackendOff:
+	docker compose -f docker-compose.yaml down
