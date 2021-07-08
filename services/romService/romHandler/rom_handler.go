@@ -152,3 +152,18 @@ func (r *DbLog) searchRomName(c *gin.Context) {
 	api.ApiRes(c, err, r.L, gin.H{"list": nameList})
 
 }
+
+// get a list of device codename
+func (r *DbLog) incrementDownload(c *gin.Context) {
+
+	// get the rom id from the uri
+	romId := c.Param("id")
+	token := c.GetHeader("token")
+
+	// get the list of rom name
+	err := r.incrementDownloadDB(romId, token)
+
+	// return the list of rom name
+	api.ApiRes(c, err, r.L, gin.H{"res": "incremented the counter"})
+
+}

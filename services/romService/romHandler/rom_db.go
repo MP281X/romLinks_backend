@@ -268,3 +268,30 @@ func (r *DbLog) searchRomNameDB(romName string) ([]string, error) {
 	// return the rom name list
 	return romNameList, nil
 }
+
+// add one to the download counter
+func (r *DbLog) incrementDownloadDB(romId string, token string) error {
+
+	romId = strings.ToLower(romId)
+
+	// convert the rom id in a object id
+	id, _ := primitive.ObjectIDFromHex(romId)
+
+	// check if the user is logged
+	_, err := encryption.GetTokenData(token)
+	if err != nil {
+		return logger.ErrTokenRead
+	}
+
+	// increment the download counter
+	_, err = r.DbV.UpdateOne(context.TODO(), bson.M{"_id": id}, bson.D{
+		{"$inc", bson.D{{"downloadnumber", 1}}},
+	})
+	if err != nil {
+		return logger.ErrDbWrite
+	}
+
+	r.L.DbWrite("incremented the download counter")
+
+	return nil
+}

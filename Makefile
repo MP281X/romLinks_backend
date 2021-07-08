@@ -40,8 +40,16 @@ stopGitDockerfile:
 startGitDockerfile:
 	git update-index --no-assume-unchanged docker-compose.yaml
 
+# run all the container
 runDockerCompose:
 	docker compose -f docker-compose.yaml up -d
 
+# close all the container
 closeDockerCompose:
 	docker compose -f docker-compose.yaml down
+
+# build all the docker-image and restart the service
+updateAndRestart:
+	make closeDockerCompose
+	make buildAll
+	make runDockerCompose

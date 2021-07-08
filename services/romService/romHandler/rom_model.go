@@ -77,15 +77,17 @@ func (rom *RomModel) Validate() error {
 }
 
 type VersionModel struct {
-	Id          primitive.ObjectID `bson:"_id,omitempty" json:"id,omitempty"`
-	RomId       string             `bson:"romid" json:"romid"`
-	Codename    string             `bson:"codename" json:"codename"`
-	Date        time.Time          `bson:"date" json:"date"`
-	ChangeLog   string             `bson:"changelog" json:"changelog"`
-	Error       []string           `bson:"error" json:"error"`
-	GappsLink   string             `bson:"gappslink" json:"gappslink"`
-	VanillaLink string             `bson:"vanillalink" json:"vanillalink"`
-	UploadedBy  string             `bson:"uploadedby" json:"-"`
+	Id             primitive.ObjectID `bson:"_id,omitempty" json:"id,omitempty"`
+	RomId          string             `bson:"romid" json:"romid"`
+	Codename       string             `bson:"codename" json:"codename"`
+	Date           time.Time          `bson:"date" json:"date"`
+	ChangeLog      string             `bson:"changelog" json:"changelog"`
+	Error          []string           `bson:"error" json:"error"`
+	GappsLink      string             `bson:"gappslink" json:"gappslink"`
+	VanillaLink    string             `bson:"vanillalink" json:"vanillalink"`
+	UploadedBy     string             `bson:"uploadedby" json:"-"`
+	DownloadNumber int                `bson:"downloadnumber" json:"downloadnumber"`
+	RelaseType     string             `bson:"relasetype" json:"relasetype"`
 }
 
 func (v *VersionModel) Validate() error {
@@ -113,5 +115,12 @@ func (v *VersionModel) Validate() error {
 	if v.GappsLink == "" && v.VanillaLink == "" {
 		return errors.New("enter a download link")
 	}
+
+	v.DownloadNumber = 0
+
+	if v.RelaseType == "" {
+		return errors.New("enter the relase type")
+	}
+
 	return nil
 }
