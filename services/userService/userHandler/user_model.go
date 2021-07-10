@@ -15,7 +15,6 @@ type UserModel struct {
 	SavedRom  []string           `bson:"savedRom" json:"savedRom"`
 	Dev       *DevModel          `bson:"dev" json:"dev"`
 	Moderator bool               `bson:"moderator" json:"moderator"`
-	Image     string             `bson:"image" json:"image"`
 	Ban       bool               `bson:"ban" json:"ban"`
 }
 

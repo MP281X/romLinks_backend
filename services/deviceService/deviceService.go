@@ -39,20 +39,14 @@ func main() {
 	}
 	l.System("added index to the db")
 
-	// initialize gin
-	l.System("api running at http://0.0.0.0:9090/deviceService")
-
 	// pass the logger and the db collection to the routes handler
 	r := &devicehandler.DbLog{
 		L:  l,
 		Db: db.Collection("device"),
 	}
 	// init the api with the routes
-	err = api.InitApi(r.DeviceRoutes, ":9090", l)
-	if err != nil {
-		l.System("unable to initialize the api")
-		return
-	}
+	api.InitApi(r.DeviceRoutes, ":9090", "deviceService", l)
+
 }
 
 // set the mongo db index

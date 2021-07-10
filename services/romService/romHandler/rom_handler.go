@@ -86,6 +86,9 @@ func (r *DbLog) getUnverifiedRom(c *gin.Context) {
 
 	// get the list of unverified rom
 	roms, err := r.getUnverifiedRomDB(token)
+	if roms == nil {
+		roms = []*RomModel{}
+	}
 
 	// return an unverified rom list
 	api.ApiRes(c, err, r.L, gin.H{"list": roms})
@@ -118,7 +121,9 @@ func (r *DbLog) getRomList(c *gin.Context) {
 
 	// get the rom list
 	roms, err := r.getRomListDB(codename, float32(androidVersion), orderby)
-
+	if roms == nil {
+		roms = []*RomModel{}
+	}
 	// return the rom list
 	api.ApiRes(c, err, r.L, gin.H{"list": roms})
 
@@ -133,7 +138,9 @@ func (r *DbLog) getVersionList(c *gin.Context) {
 
 	// get the version list
 	versions, err := r.getVersionListDB(codename, romId)
-
+	if versions == nil {
+		versions = []*VersionModel{}
+	}
 	// return the version list
 	api.ApiRes(c, err, r.L, gin.H{"list": versions})
 
@@ -147,7 +154,9 @@ func (r *DbLog) searchRomName(c *gin.Context) {
 
 	// get the list of rom name
 	nameList, err := r.searchRomNameDB(romName)
-
+	if nameList == nil {
+		nameList = []string{}
+	}
 	// return the list of rom name
 	api.ApiRes(c, err, r.L, gin.H{"list": nameList})
 

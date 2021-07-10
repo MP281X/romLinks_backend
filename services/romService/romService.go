@@ -39,9 +39,6 @@ func main() {
 	}
 	l.System("added index to the db")
 
-	// initialize gin
-	l.System("api running at http://0.0.0.0:9092/romService")
-
 	// pass the logger and the db collection to the routes handler
 	r := &romhandler.DbLog{
 		L:   l,
@@ -49,11 +46,8 @@ func main() {
 		DbV: db.Collection("version"),
 	}
 	// init the api with the routes
-	err = api.InitApi(r.RomRoutes, ":9092", l)
-	if err != nil {
-		l.System("unable to initialize the api")
-		return
-	}
+	api.InitApi(r.RomRoutes, ":9092", "romService", l)
+
 }
 
 // set the mongo db index

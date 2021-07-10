@@ -16,6 +16,6 @@ func (r *DbLog) UserRoutes(app *gin.Engine) {
 // root route
 func (r *DbLog) root(c *gin.Context) {
 	c.JSON(200, gin.H{
-		"msg": "romLinks auth service",
+		"msg": "romLinks user service",
 	})
 }

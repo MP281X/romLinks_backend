@@ -22,18 +22,12 @@ func main() {
 	// generate the required folder
 	genFolder(l)
 
-	// initialize gin
-	l.System("api running at http://0.0.0.0:9091/romService")
-
 	// pass the logger routes handler
 	r := &filehandler.Log{L: l}
 
 	// init the api with the routes
-	err = api.InitApi(r.FileStorageRoutes, ":9091", l)
-	if err != nil {
-		l.System("unable to initialize the api")
-		return
-	}
+	api.InitApi(r.FileStorageRoutes, ":9091", "fileStorageService", l)
+
 }
 
 func genFolder(l *logger.LogStruct) {

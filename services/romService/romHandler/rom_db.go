@@ -158,11 +158,22 @@ func (r *DbLog) approveRomDB(romId string, token string) error {
 
 	romId = strings.ToLower(romId)
 
+	// check if the token is valid
+	tokenData, err := encryption.GetTokenData(token)
+	if err != nil {
+		return err
+	}
+
+	// check if the user has the permission
+	if !tokenData.Moderator && !tokenData.Verified {
+		return logger.ErrUnauthorized
+	}
+
 	// convert the rom id in a object id
 	id, _ := primitive.ObjectIDFromHex(romId)
 
 	// set true the verified filed
-	_, err := r.DbR.UpdateOne(context.TODO(), bson.M{"_id": id}, bson.D{
+	_, err = r.DbR.UpdateOne(context.TODO(), bson.M{"_id": id}, bson.D{
 		{"$set", bson.D{{"verified", true}}},
 	})
 	if err != nil {

@@ -16,7 +16,7 @@ import (
 func main() {
 
 	// initialize the logger
-	l, err := logger.InitLogger("authService")
+	l, err := logger.InitLogger("userService")
 	if err != nil {
 		fmt.Println(err.Error())
 		return
@@ -24,7 +24,7 @@ func main() {
 	l.System("logger initialized")
 
 	// connect to mongodb
-	db, err := db.InitDB("authService")
+	db, err := db.InitDB("userService")
 	if err != nil {
 		l.Err("db initialized")
 		return
@@ -39,20 +39,13 @@ func main() {
 	}
 	l.System("added index to the db")
 
-	// initialize gin
-	l.System("api running at http://0.0.0.0:9093/userService")
-
 	// pass the logger and the db collection to the routes handler
 	r := &userHandler.DbLog{
 		L:  l,
 		Db: db.Collection("user"),
 	}
 	// init the api with the routes
-	err = api.InitApi(r.UserRoutes, ":9093", l)
-	if err != nil {
-		l.System("unable to initialize the api")
-		return
-	}
+	api.InitApi(r.UserRoutes, ":9093", "userService", l)
 }
 
 // set the mongo db index

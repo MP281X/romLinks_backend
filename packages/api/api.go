@@ -1,9 +1,14 @@
 package api
 
 import (
+	"context"
+	"errors"
 	"io/ioutil"
+	"net/http"
 	"os"
+	"os/signal"
 	"strconv"
+	"syscall"
 	"time"
 
 	"github.com/MP281X/romLinks_backend/packages/logger"
@@ -13,7 +18,7 @@ import (
 )
 
 // initialize gin
-func InitApi(routes func(*gin.Engine), port string, l *logger.LogStruct) error {
+func InitApi(routes func(*gin.Engine), port string, servicename string, l *logger.LogStruct) {
 
 	// set gin in relase mode
 	gin.SetMode(gin.ReleaseMode)
@@ -65,6 +70,28 @@ func InitApi(routes func(*gin.Engine), port string, l *logger.LogStruct) error {
 	// pass the gin engine to the function that handle the routes
 	routes(app)
 
+	srv := &http.Server{
+		Addr:    port,
+		Handler: app,
+	}
 	// run the api on the specified port
-	return app.Run(port)
+	go func() {
+		l.System("api running at http://0.0.0.0" + port + "/" + servicename)
+		if err = srv.ListenAndServe(); err != nil && errors.Is(err, http.ErrServerClosed) {
+			l.Err("unable to run the api on port " + port[1:])
+		}
+	}()
+
+	quit := make(chan os.Signal)
+
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+	<-quit
+	l.System("closing the server")
+	ctx, c := context.WithTimeout(context.Background(), 5*time.Second)
+	defer c()
+
+	if err := srv.Shutdown(ctx); err != nil {
+		l.Err("server forced to shoutdown")
+	}
+	l.System("server closed")
 }
