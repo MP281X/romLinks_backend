@@ -75,6 +75,17 @@ func (r *DbLog) addVersionDB(version *VersionModel, token string) (string, error
 		return "", logger.ErrDbWrite
 	}
 
+	// convert the rom id in a object id
+	romId, _ := primitive.ObjectIDFromHex(version.RomId)
+
+	// set true the verified filed
+	_, err = r.DbR.UpdateOne(context.TODO(), bson.M{"_id": romId}, bson.D{
+		{"$addToSet", bson.D{{"codename", version.Codename}}},
+	})
+	if err != nil {
+		return "", logger.ErrDbWrite
+	}
+
 	// get the rom id
 	userId := fmt.Sprintf("%v", id.InsertedID)
 	userId = userId[10 : len(userId)-2]
@@ -84,6 +95,9 @@ func (r *DbLog) addVersionDB(version *VersionModel, token string) (string, error
 	return userId, nil
 }
 
+// bson.D{
+// 	{"$inc", bson.D{{"downloadnumber", 1}}},
+// }
 // get the data of a rom
 func (r *DbLog) getRomDB(codename string, androidVersion float32, romName string) (*RomModel, error) {
 
@@ -138,6 +152,17 @@ func (r *DbLog) getUnverifiedRomDB(token string) ([]*RomModel, error) {
 
 	// decode the rom list there
 	var romsList []*RomModel
+
+	// get the data from the token
+	tokenData, err := encryption.GetTokenData(token)
+	if err != nil {
+		return nil, logger.ErrTokenRead
+	}
+
+	// check if the user is a moderator
+	if !tokenData.Moderator {
+		return nil, logger.ErrUnauthorized
+	}
 
 	// search the roms in the db
 	roms, err := r.DbR.Find(context.TODO(), bson.M{"verified": false}, options.Find().SetSort(bson.D{}).SetLimit(20))
@@ -305,4 +330,48 @@ func (r *DbLog) incrementDownloadDB(romId string, token string) error {
 	r.L.DbWrite("incremented the download counter")
 
 	return nil
+}
+
+// get a list of rom and version uploaded by the user
+func (r *DbLog) getUploadedDB(token string) (*RomVersionModel, error) {
+
+	// decode the rom list there
+	var romsList []*RomModel
+	var versionList []*VersionModel
+
+	// get the data from the token
+	tokenData, err := encryption.GetTokenData(token)
+	if err != nil {
+		return nil, logger.ErrTokenRead
+	}
+
+	// search the roms in the db
+	roms, err := r.DbR.Find(context.TODO(), bson.M{"uploadedby": tokenData.Username}, options.Find().SetSort(bson.D{}).SetLimit(20))
+	if err != nil {
+		return nil, logger.ErrDbRead
+	}
+
+	defer roms.Close(context.TODO())
+	if err = roms.All(context.TODO(), &romsList); err != nil {
+		return nil, logger.ErrDbRead
+	}
+
+	// search the versions in the db
+	versions, err := r.DbV.Find(context.Background(), bson.M{"uploadedby": tokenData.Username}, options.Find().SetSort(bson.D{}).SetLimit(20))
+	if err != nil {
+		return nil, logger.ErrDbRead
+	}
+
+	defer versions.Close(context.TODO())
+	if err = versions.All(context.TODO(), &versionList); err != nil {
+		return nil, logger.ErrDbRead
+	}
+
+	// combine the version and the rom list
+	var uploaded *RomVersionModel = &RomVersionModel{
+		Rom:     romsList,
+		Version: versionList,
+	}
+	// return a list of rom unverified
+	return uploaded, nil
 }

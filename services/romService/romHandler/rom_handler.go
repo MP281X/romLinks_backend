@@ -176,3 +176,30 @@ func (r *DbLog) incrementDownload(c *gin.Context) {
 	api.ApiRes(c, err, r.L, gin.H{"res": "incremented the counter"})
 
 }
+
+// return a list of rom and version uploaded by the user
+func (r *DbLog) getUploaded(c *gin.Context) {
+
+	// get the token from the header
+	token := c.GetHeader("token")
+
+	// get a list of rom and version uploaed by the user
+	uploaded, err := r.getUploadedDB(token)
+	if uploaded == nil {
+		uploaded = &RomVersionModel{
+			Rom:     []*RomModel{},
+			Version: []*VersionModel{},
+		}
+	}
+
+	if uploaded.Rom == nil {
+		uploaded.Rom = []*RomModel{}
+	}
+
+	if uploaded.Version == nil {
+		uploaded.Version = []*VersionModel{}
+	}
+
+	// return a list of rom and version uploaed by the user
+	api.ApiRes(c, err, r.L, uploaded)
+}

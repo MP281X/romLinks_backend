@@ -56,7 +56,7 @@ func (rom *RomModel) Validate() error {
 	}
 
 	if len(rom.Codename) == 0 {
-		return errors.New("enter the device codename")
+		rom.Codename = []string{}
 	}
 
 	for i, codename := range rom.Codename {
@@ -81,7 +81,7 @@ type VersionModel struct {
 	RomId          string             `bson:"romid" json:"romid"`
 	Codename       string             `bson:"codename" json:"codename"`
 	Date           time.Time          `bson:"date" json:"date"`
-	ChangeLog      string             `bson:"changelog" json:"changelog"`
+	ChangeLog      []string           `bson:"changelog" json:"changelog"`
 	Error          []string           `bson:"error" json:"error"`
 	GappsLink      string             `bson:"gappslink" json:"gappslink"`
 	VanillaLink    string             `bson:"vanillalink" json:"vanillalink"`
@@ -103,8 +103,8 @@ func (v *VersionModel) Validate() error {
 
 	v.Date = time.Now()
 
-	if v.ChangeLog == "" {
-		return errors.New("enter the version changelog")
+	if len(v.ChangeLog) == 0 {
+		v.ChangeLog = []string{}
 
 	}
 
@@ -123,4 +123,9 @@ func (v *VersionModel) Validate() error {
 	}
 
 	return nil
+}
+
+type RomVersionModel struct {
+	Version []*VersionModel `bson:"version" json:"version"`
+	Rom     []*RomModel     `bson:"rom" json:"rom"`
 }
