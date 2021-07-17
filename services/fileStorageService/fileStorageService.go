@@ -36,6 +36,5 @@ func genFolder(l *logger.LogStruct) {
 	os.Mkdir("./asset/logo", os.ModePerm)
 	os.Mkdir("./asset/profile", os.ModePerm)
 	os.Mkdir("./asset/screenshot", os.ModePerm)
-	os.Mkdir("./asset/devicePhoto", os.ModePerm)
 	l.System("created the asset folder")
 }

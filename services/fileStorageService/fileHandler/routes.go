@@ -8,8 +8,8 @@ import (
 func (l *Log) FileStorageRoutes(app *gin.Engine) {
 	app.GET("/fileStorageService", l.root)
 	app.GET("/image/:category/:name", l.getImage)
-	app.POST("/image/:category/:android/:name", l.saveImage)
-	app.POST("/profile/:username", l.saveProfilePicture)
+	app.POST("/image/:category", l.saveImage)
+	app.POST("/profile", l.saveProfilePicture)
 }
 
 // root route

@@ -1,14 +1,13 @@
 package filehandler
 
 import (
-	"fmt"
 	"os"
+	"strconv"
 	"strings"
 
 	"github.com/MP281X/romLinks_backend/packages/encryption"
 	"github.com/MP281X/romLinks_backend/packages/logger"
 	"github.com/gin-gonic/gin"
-	"github.com/gofrs/uuid"
 )
 
 type Log struct {
@@ -27,9 +26,7 @@ func (l *Log) getImage(c *gin.Context) {
 	// check if the file exist
 	if _, err := os.Stat(path); os.IsNotExist(err) {
 		l.L.Err("image not found")
-		c.JSON(404, gin.H{
-			"err": "image not found",
-		})
+		c.File("")
 		l.L.Err("image not found")
 		return
 	}
@@ -42,30 +39,58 @@ func (l *Log) getImage(c *gin.Context) {
 
 func (l *Log) saveImage(c *gin.Context) {
 
+	// get the token data
+	token := c.GetHeader("token")
+
+	tokenData, err := encryption.GetTokenData(token)
+	if err != nil {
+		c.JSON(500, gin.H{
+			"err": logger.ErrUnauthorized.Error(),
+		})
+		l.L.Err(logger.ErrUnauthorized.Error())
+		return
+	}
+
 	// get the image info from the header
 	category := c.Param("category")
-	x := c.Param("name")
-	fileInfo := strings.Split(x, ".")
-	androidVersion := c.Param("androidVersion")
-	romName := fileInfo[0]
-	format := fileInfo[1]
+	format := c.GetHeader("format")
+	androidVersion, _ := strconv.ParseFloat(c.GetHeader("android"), 64)
+	androidString := c.GetHeader("android")
+	romName := c.GetHeader("romName")
 
-	// check if the category is correct
-	if category != "logo" && category != "devicePhoto" && category != "screenshot" {
+	if category == "" || format == "" || romName == "" || androidVersion == 0 {
+		c.JSON(500, gin.H{
+			"err": "invalid image data",
+		})
+		l.L.Err("invalid image data")
+		return
+	}
+
+	// check the screenshot index
+	index, _ := strconv.Atoi(c.GetHeader("index"))
+	if index > 5 || index < 0 {
+		c.JSON(500, gin.H{
+			"err": "invalid index",
+		})
+		l.L.Err("invalid index")
+		return
+	}
+
+	// build the file path
+	var filePath string
+
+	if category == "logo" {
+		filePath = "./asset/logo/" + tokenData.Username + "_" + romName + androidString + "." + format
+
+	} else if category == "screenshot" {
+		filePath = "./asset/screenshot/" + tokenData.Username + "_" + romName + androidString + "_" + strconv.Itoa(index) + "." + format
+	} else {
 		c.JSON(500, gin.H{
 			"err": "invalid category",
 		})
 		l.L.Err("invalid category")
 		return
 	}
-	// generate a new uuid
-	newuuid, _ := uuid.NewV4()
-
-	// build the file path
-	filePath := "./asset/" + category + "/"
-
-	// build the file name
-	fileName := romName + androidVersion + "_" + newuuid.String() + "." + format
 
 	l.L.FileSave("saved an image in the " + category + " directory")
 
@@ -80,7 +105,7 @@ func (l *Log) saveImage(c *gin.Context) {
 	}
 
 	// save the file
-	if err := c.SaveUploadedFile(file, filePath+fileName); err != nil {
+	if err := c.SaveUploadedFile(file, filePath); err != nil {
 
 		c.JSON(500, gin.H{
 			"msg": "unable to save the image",
@@ -91,41 +116,25 @@ func (l *Log) saveImage(c *gin.Context) {
 
 	// send the file link
 	c.JSON(200, gin.H{
-		"imgLink": category + "/" + fileName,
+		"imgLink": filePath[8:],
 	})
 }
 
 // save the profile picture of a user
 func (l *Log) saveProfilePicture(c *gin.Context) {
 
-	// get the image info from the header
-	username := c.Param("username")
+	// get the token data
+	token := c.GetHeader("token")
+	tokenData, err := encryption.GetTokenData(token)
+	if err != nil {
+		c.JSON(500, gin.H{
+			"err": logger.ErrUnauthorized,
+		})
+		return
+	}
 
 	// build the file path
-	filePath := "./asset/profile/" + username
-
-	if _, err := os.Stat(filePath); err == nil {
-
-		// get the token data
-		token := c.GetHeader("token")
-		tokenData, err := encryption.GetTokenData(token)
-		if err != nil {
-			c.JSON(500, gin.H{
-				"err": err.Error(),
-			})
-			return
-		}
-
-		// check if the user has the same username as the profile picture
-		splitUsername := strings.Split(username, ".")
-		if tokenData.Username != splitUsername[0] {
-			c.JSON(500, gin.H{
-				"err": logger.ErrUnauthorized.Error(),
-			})
-			l.L.Err(logger.ErrUnauthorized.Error())
-			return
-		}
-	}
+	filePath := "./asset/profile/" + tokenData.Username + ".png"
 
 	// get the file from the body
 	file, err := c.FormFile("file")
@@ -133,9 +142,9 @@ func (l *Log) saveProfilePicture(c *gin.Context) {
 		c.JSON(500, gin.H{
 			"err": "unable to get the image",
 		})
+		return
 	}
 
-	fmt.Println(filePath)
 	// save the file
 	if err := c.SaveUploadedFile(file, filePath); err != nil {
 
@@ -147,8 +156,9 @@ func (l *Log) saveProfilePicture(c *gin.Context) {
 	}
 
 	l.L.FileSave("saved an image in the profile directory")
+
 	// send the file link
 	c.JSON(200, gin.H{
-		"imgLink": "profile/" + username,
+		"imgLink": "profile/" + tokenData.Username,
 	})
 }

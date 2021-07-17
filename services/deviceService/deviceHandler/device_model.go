@@ -12,7 +12,6 @@ type DeviceModel struct {
 	CreatedBy       string             `bson:"createdby" json:"-"`
 	Codename        string             `bson:"codename" json:"codename"`
 	Name            string             `bson:"name" json:"name"`
-	Photo           []string           `bson:"photo" json:"photo"`
 	Brand           string             `bson:"brand" json:"brand"`
 	Specs           *SpecsModel        `bson:"specs" json:"specs"`
 	BootloaderLinks []string           `bson:"bootloaderlinks" json:"bootloaderlinks"`
@@ -40,10 +39,6 @@ func (device *DeviceModel) ValidateDeviceData() error {
 	device.Codename = strings.ToLower(device.Codename)
 	if device.Name == "" {
 		return errors.New("enter the device name")
-	}
-	device.Name = strings.ToLower(device.Name)
-	if len(device.Photo) == 0 {
-		return errors.New("upload an image")
 	}
 	device.Brand = strings.ToLower(device.Brand)
 	if device.Brand == "" {
