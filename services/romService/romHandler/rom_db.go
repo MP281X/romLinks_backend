@@ -346,7 +346,7 @@ func (r *DbLog) getUploadedDB(token string) (*RomVersionModel, error) {
 	}
 
 	// search the roms in the db
-	roms, err := r.DbR.Find(context.TODO(), bson.M{"uploadedby": tokenData.Username}, options.Find().SetSort(bson.D{}).SetLimit(20))
+	roms, err := r.DbR.Find(context.TODO(), bson.M{"uploadedby": tokenData.Username}, options.Find().SetSort(bson.D{}))
 	if err != nil {
 		return nil, logger.ErrDbRead
 	}
@@ -357,7 +357,7 @@ func (r *DbLog) getUploadedDB(token string) (*RomVersionModel, error) {
 	}
 
 	// search the versions in the db
-	versions, err := r.DbV.Find(context.Background(), bson.M{"uploadedby": tokenData.Username}, options.Find().SetSort(bson.D{}).SetLimit(20))
+	versions, err := r.DbV.Find(context.Background(), bson.M{"uploadedby": tokenData.Username}, options.Find().SetSort(bson.D{}))
 	if err != nil {
 		return nil, logger.ErrDbRead
 	}

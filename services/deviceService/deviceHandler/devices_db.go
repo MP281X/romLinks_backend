@@ -119,3 +119,29 @@ func (r *DbLog) searchDeviceNameDB(codename string) ([]string, error) {
 	// return the device name list
 	return deviceCodenameList, nil
 }
+
+// get a list of devices uploaded by the user
+func (r *DbLog) getUploadedDB(token string) ([]*DeviceModel, error) {
+
+	// decode the device list there
+	var deviceList []*DeviceModel
+
+	// get the data from the token
+	tokenData, err := encryption.GetTokenData(token)
+	if err != nil {
+		return nil, logger.ErrTokenRead
+	}
+
+	// search the roms in the db
+	devices, err := r.Db.Find(context.TODO(), bson.M{"createdby": tokenData.Username}, options.Find().SetSort(bson.D{}))
+	if err != nil {
+		return nil, logger.ErrDbRead
+	}
+
+	defer devices.Close(context.TODO())
+	if err = devices.All(context.TODO(), &deviceList); err != nil {
+		return nil, logger.ErrDbRead
+	}
+
+	return deviceList, nil
+}
