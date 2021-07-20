@@ -68,6 +68,8 @@ func (r *DbLog) addVersionDB(version *VersionModel, token string) (string, error
 
 	// set the uploader name
 	version.UploadedBy = tokenData.Username
+	version.Codename = strings.TrimSpace(version.Codename)
+	version.Codename = strings.ToLower(version.Codename)
 
 	// insert the version in the db
 	id, err := r.DbV.InsertOne(context.TODO(), version)
@@ -80,7 +82,7 @@ func (r *DbLog) addVersionDB(version *VersionModel, token string) (string, error
 
 	// set true the verified filed
 	_, err = r.DbR.UpdateOne(context.TODO(), bson.M{"_id": romId}, bson.D{
-		{"$addToSet", bson.D{{"codename", version.Codename}}},
+		{Key: "$addToSet", Value: bson.M{"codename": version.Codename}},
 	})
 	if err != nil {
 		return "", logger.ErrDbWrite
@@ -95,9 +97,6 @@ func (r *DbLog) addVersionDB(version *VersionModel, token string) (string, error
 	return userId, nil
 }
 
-// bson.D{
-// 	{"$inc", bson.D{{"downloadnumber", 1}}},
-// }
 // get the data of a rom
 func (r *DbLog) getRomDB(codename string, androidVersion float32, romName string) (*RomModel, error) {
 
@@ -179,6 +178,7 @@ func (r *DbLog) getUnverifiedRomDB(token string) ([]*RomModel, error) {
 	return romsList, nil
 }
 
+// approve a rom
 func (r *DbLog) approveRomDB(romId string, token string) error {
 
 	romId = strings.ToLower(romId)
@@ -199,7 +199,7 @@ func (r *DbLog) approveRomDB(romId string, token string) error {
 
 	// set true the verified filed
 	_, err = r.DbR.UpdateOne(context.TODO(), bson.M{"_id": id}, bson.D{
-		{"$set", bson.D{{"verified", true}}},
+		{Key: "$set", Value: bson.M{"verified": true}},
 	})
 	if err != nil {
 		return logger.ErrDbWrite
@@ -210,7 +210,7 @@ func (r *DbLog) approveRomDB(romId string, token string) error {
 	return nil
 }
 
-// //TODO: aggiungere altri filtri, official
+// get a list of rom
 func (r *DbLog) getRomListDB(codename string, androidVersion float32, orderby string) ([]*RomModel, error) {
 
 	codename = strings.ToLower(codename)
@@ -221,7 +221,7 @@ func (r *DbLog) getRomListDB(codename string, androidVersion float32, orderby st
 	findOptions := options.Find()
 	fmt.Println(orderby)
 	if orderby != "/" {
-		findOptions.SetSort(bson.D{{orderby[1:], -1}})
+		findOptions.SetSort(bson.M{orderby[1:]: -1})
 	}
 
 	// search the rom in the db
@@ -249,6 +249,7 @@ func (r *DbLog) getRomListDB(codename string, androidVersion float32, orderby st
 	return romsList, nil
 }
 
+// get a list of version
 func (r *DbLog) getVersionListDB(codename string, romId string) ([]*VersionModel, error) {
 
 	codename = strings.ToLower(codename)
@@ -321,7 +322,7 @@ func (r *DbLog) incrementDownloadDB(romId string, token string) error {
 
 	// increment the download counter
 	_, err = r.DbV.UpdateOne(context.TODO(), bson.M{"_id": id}, bson.D{
-		{"$inc", bson.D{{"downloadnumber", 1}}},
+		{Key: "$inc", Value: bson.M{"downloadnumber": 1}},
 	})
 	if err != nil {
 		return logger.ErrDbWrite
@@ -374,4 +375,41 @@ func (r *DbLog) getUploadedDB(token string) (*RomVersionModel, error) {
 	}
 	// return a list of rom unverified
 	return uploaded, nil
+}
+
+func (r *DbLog) addReviewDB(token string, comment *CommentModel) error {
+
+	// validate the comment data
+	err := comment.Validate()
+	if err != nil {
+		return err
+	}
+
+	// get the data from the token
+	tokenData, err := encryption.GetTokenData(token)
+	if err != nil {
+		return logger.ErrTokenRead
+	}
+
+	comment.Username = tokenData.Username
+
+	// convert the rom id in a object id
+	id, _ := primitive.ObjectIDFromHex(comment.RomId)
+
+	// add the review to the db
+	_, err = r.DbR.UpdateOne(context.TODO(), bson.M{"_id": id}, bson.D{
+		{Key: "$inc", Value: bson.M{"review.battery": comment.Battery}},
+		{Key: "$inc", Value: bson.M{"review.performance": comment.Performance}},
+		{Key: "$inc", Value: bson.M{"review.stability": comment.Stability}},
+		{Key: "$inc", Value: bson.M{"review.customization": comment.Customization}},
+		{Key: "$inc", Value: bson.M{"review.reviewnum": 1}},
+		{Key: "$push", Value: bson.M{"comment": comment}},
+	})
+
+	if err != nil {
+		return logger.ErrDbWrite
+	}
+
+	// return a list of rom unverified
+	return nil
 }

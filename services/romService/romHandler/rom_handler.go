@@ -203,3 +203,21 @@ func (r *DbLog) getUploaded(c *gin.Context) {
 	// return a list of rom and version uploaed by the user
 	api.ApiRes(c, err, r.L, uploaded)
 }
+
+// add a review to the db
+func (r *DbLog) addReview(c *gin.Context) {
+
+	token := c.GetHeader("token")
+
+	//decode the body
+	var comment *CommentModel
+	data, _ := ioutil.ReadAll(c.Request.Body)
+	json.Unmarshal(data, &comment)
+
+	// get the list of rom name
+	err := r.addReviewDB(token, comment)
+
+	// return the list of rom name
+	api.ApiRes(c, err, r.L, gin.H{"res": "added the comment"})
+
+}

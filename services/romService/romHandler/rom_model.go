@@ -17,21 +17,60 @@ type RomModel struct {
 	Description    string             `bson:"description" json:"description"`
 	Link           []string           `bson:"link" json:"link"`
 	Verified       bool               `bson:"verified" json:"verified"`
-	Official       bool               `bson:"official" json:"official"`
 	Codename       []string           `bson:"codename" json:"codename"`
 	Review         *ReviewModel       `bson:"review" json:"review"`
+	Comment        []*CommentModel    `bson:"comment" json:"comment"`
 	UploadedBy     string             `bson:"uploadedby" json:"uploadedby"`
 }
 
+type CommentModel struct {
+	RomId         string  `bson:"romid" json:"romid"`
+	Codename      string  `bson:"codename" json:"codename"`
+	Username      string  `bson:"username" json:"username"`
+	Msg           string  `bson:"msg" json:"msg"`
+	Battery       float32 `bson:"battery" json:"battery"`
+	Performance   float32 `bson:"performance" json:"performance"`
+	Stability     float32 `bson:"stability" json:"stability"`
+	Customization float32 `bson:"customization" json:"customization"`
+}
+
+func (c *CommentModel) Validate() error {
+
+	if c.Codename == "" {
+		return errors.New("enter the device codename")
+	}
+
+	if c.RomId == "" {
+		return errors.New("invalid rom id")
+	}
+
+	if c.Battery < 1 || c.Battery > 5 {
+		return errors.New("invalid star range")
+	}
+
+	if c.Performance < 1 || c.Performance > 5 {
+		return errors.New("invalid star range")
+	}
+
+	if c.Stability < 1 || c.Stability > 5 {
+		return errors.New("invalid star range")
+	}
+
+	if c.Customization < 1 || c.Customization > 5 {
+		return errors.New("invalid star range")
+	}
+
+	c.Username = ""
+
+	return nil
+}
+
 type ReviewModel struct {
-	Battery             float32 `bson:"battery" json:"battery"`
-	BatteryRevNum       int     `bson:"batteryrevnum" json:"batteryrevnum"`
-	Performance         float32 `bson:"performance" json:"performance"`
-	PerformanceRevNum   int     `bson:"performancerevnum" json:"performancerevnum"`
-	Stability           float32 `bson:"stability" json:"stability"`
-	StabilityRevNum     int     `bson:"stabilityrevnum" json:"stabilityrevnum"`
-	Customization       float32 `bson:"customization" json:"customization"`
-	CustomizationRevNum int     `bson:"customizationrevnum" json:"customizationrevnum"`
+	Battery       float32 `bson:"battery" json:"battery"`
+	Performance   float32 `bson:"performance" json:"performance"`
+	Stability     float32 `bson:"stability" json:"stability"`
+	Customization float32 `bson:"customization" json:"customization"`
+	ReviewNum     int     `bson:"reviewnum" json:"reviewnum"`
 }
 
 func (rom *RomModel) Validate() error {
@@ -55,24 +94,18 @@ func (rom *RomModel) Validate() error {
 		rom.Link = []string{}
 	}
 
-	if len(rom.Codename) == 0 {
-		rom.Codename = []string{}
-	}
-
-	for i, codename := range rom.Codename {
-		rom.Codename[i] = strings.ToLower(codename)
-	}
+	rom.Codename = []string{}
 
 	rom.Review = &ReviewModel{
-		Battery:             0.0,
-		BatteryRevNum:       0,
-		Performance:         0.0,
-		PerformanceRevNum:   0,
-		Stability:           0.0,
-		StabilityRevNum:     0,
-		Customization:       0.0,
-		CustomizationRevNum: 0,
+		Battery:       0.0,
+		Performance:   0.0,
+		Stability:     0.0,
+		Customization: 0.0,
+		ReviewNum:     0,
 	}
+
+	rom.Comment = []*CommentModel{}
+
 	return nil
 }
 
@@ -81,6 +114,7 @@ type VersionModel struct {
 	RomId          string             `bson:"romid" json:"romid"`
 	Codename       string             `bson:"codename" json:"codename"`
 	Date           time.Time          `bson:"date" json:"date"`
+	Official       bool               `bson:"official" json:"official"`
 	ChangeLog      []string           `bson:"changelog" json:"changelog"`
 	Error          []string           `bson:"error" json:"error"`
 	GappsLink      string             `bson:"gappslink" json:"gappslink"`
@@ -100,8 +134,6 @@ func (v *VersionModel) Validate() error {
 	}
 
 	v.Codename = strings.ToLower(v.Codename)
-
-	v.Date = time.Now()
 
 	if len(v.ChangeLog) == 0 {
 		v.ChangeLog = []string{}

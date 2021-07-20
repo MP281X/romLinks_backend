@@ -27,7 +27,7 @@ type DevModel struct {
 func (user *UserModel) Validate() error {
 
 	// validate username
-	if user.Username == "" || len(user.Username) < 4 {
+	if user.Username == "" || len(user.Username) < 4 || len(user.Username) > 15 {
 		return logger.ErrInvUsername
 	}
 
@@ -36,7 +36,7 @@ func (user *UserModel) Validate() error {
 		return logger.ErrInvEmail
 	}
 	// validate password
-	if user.Password == "" || len(user.Password) < 6 {
+	if user.Password == "" || len(user.Password) < 6 || len(user.Password) > 20 {
 		return logger.ErrInvPassword
 	}
 
