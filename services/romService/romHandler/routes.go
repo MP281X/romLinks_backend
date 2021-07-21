@@ -24,6 +24,8 @@ func (r *DbLog) RomRoutes(app *gin.Engine) {
 	app.GET("/romVersion", r.getUploaded)
 	app.PUT("/review", r.addReview)
 	app.GET("/review/:romid", r.getReview)
+	app.PUT("/rom/:romid", r.editRomData)
+	app.PUT("/version/:versionid", r.editVersionData)
 }
 
 // root route

@@ -68,15 +68,6 @@ func setDbIndex(db *mongo.Database) error {
 		Options: options.Index().SetUnique(true).SetName("unique rom"),
 	}
 
-	index3 := mongo.IndexModel{
-		Keys: bson.D{
-			{"romid", 1},
-			{"codename", 1},
-			{"Username", 1},
-		},
-		Options: options.Index().SetUnique(true).SetName("unique comment"),
-	}
-
 	// add the index to the db
 	_, err := db.Collection("rom").Indexes().CreateOne(context.TODO(), index1)
 	if err != nil {
@@ -84,11 +75,6 @@ func setDbIndex(db *mongo.Database) error {
 	}
 
 	_, err = db.Collection("rom").Indexes().CreateOne(context.TODO(), index2)
-	if err != nil {
-		return logger.ErrDbInit
-	}
-
-	_, err = db.Collection("comment").Indexes().CreateOne(context.TODO(), index3)
 	if err != nil {
 		return logger.ErrDbInit
 	}

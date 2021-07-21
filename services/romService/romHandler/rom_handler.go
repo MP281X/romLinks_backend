@@ -239,3 +239,41 @@ func (r *DbLog) getReview(c *gin.Context) {
 	api.ApiRes(c, err, r.L, gin.H{"list": comments})
 
 }
+
+// edit the data of a rom
+func (r *DbLog) editRomData(c *gin.Context) {
+
+	romId := c.Param("romid")
+	token := c.GetHeader("token")
+
+	//decode the body
+	var romData *EditRomModel
+	data, _ := ioutil.ReadAll(c.Request.Body)
+	json.Unmarshal(data, &romData)
+
+	// edit the data of the rom
+	err := r.editRomDataDB(romData, token, romId)
+
+	// return a message
+	api.ApiRes(c, err, r.L, gin.H{"res": "edited the rom data"})
+
+}
+
+// edit the data of a version
+func (r *DbLog) editVersionData(c *gin.Context) {
+
+	versionId := c.Param("versionid")
+	token := c.GetHeader("token")
+
+	//decode the body
+	var versionData *EditVersionModel
+	data, _ := ioutil.ReadAll(c.Request.Body)
+	json.Unmarshal(data, &versionData)
+
+	// edit the data of the version
+	err := r.editVersionDataDB(versionData, token, versionId)
+
+	// return a message
+	api.ApiRes(c, err, r.L, gin.H{"res": "edited the version data"})
+
+}

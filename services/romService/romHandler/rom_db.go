@@ -400,7 +400,6 @@ func (r *DbLog) addReviewDB(token string, comment *CommentModel) error {
 		{Key: "$inc", Value: bson.M{"review.stability": comment.Stability}},
 		{Key: "$inc", Value: bson.M{"review.customization": comment.Customization}},
 		{Key: "$inc", Value: bson.M{"review.reviewnum": 1}},
-		{Key: "$push", Value: bson.M{"comment": comment}},
 	})
 	if err != nil {
 		return logger.ErrDbWrite
@@ -433,4 +432,84 @@ func (r *DbLog) getReviewDB(romId string) ([]*CommentModel, error) {
 
 	// return the comment list
 	return commentList, nil
+}
+
+// edit the data of a rom
+func (r *DbLog) editRomDataDB(romData *EditRomModel, token string, romId string) error {
+
+	romId = strings.ToLower(romId)
+	var data RomModel
+
+	// convert the rom id in a object id
+	id, _ := primitive.ObjectIDFromHex(romId)
+
+	// check if the token is valid
+	tokenData, err := encryption.GetTokenData(token)
+	if err != nil {
+		return err
+	}
+
+	// get the data of the rom to edit
+	err = r.DbR.FindOne(context.TODO(), bson.M{"_id": id}).Decode(&data)
+	if err != nil {
+		return logger.ErrDbRead
+	}
+
+	// check if the user has the permission
+	if !tokenData.Moderator && tokenData.Username != data.UploadedBy {
+		return logger.ErrUnauthorized
+	}
+
+	// set true the verified filed
+	_, err = r.DbR.UpdateOne(context.TODO(), bson.M{"_id": id}, bson.D{
+		{Key: "$set", Value: romData},
+	})
+
+	if err != nil {
+		return logger.ErrDbWrite
+	}
+
+	r.L.DbWrite("edited the data of a rom")
+
+	return nil
+}
+
+// edit the data of a version
+func (r *DbLog) editVersionDataDB(versionData *EditVersionModel, token string, versionId string) error {
+
+	versionId = strings.ToLower(versionId)
+	var data VersionModel
+
+	// convert the rom id in a object id
+	id, _ := primitive.ObjectIDFromHex(versionId)
+
+	// check if the token is valid
+	tokenData, err := encryption.GetTokenData(token)
+	if err != nil {
+		return err
+	}
+
+	// get the data of the rom to edit
+	err = r.DbV.FindOne(context.TODO(), bson.M{"_id": id}).Decode(&data)
+	if err != nil {
+		return logger.ErrDbRead
+	}
+
+	// check if the user has the permission
+	if !tokenData.Moderator && tokenData.Username != data.UploadedBy {
+		return logger.ErrUnauthorized
+	}
+
+	// set true the verified filed
+	_, err = r.DbV.UpdateOne(context.TODO(), bson.M{"_id": id}, bson.D{
+		{Key: "$set", Value: versionData},
+	})
+
+	if err != nil {
+		return logger.ErrDbWrite
+	}
+
+	r.L.DbWrite("edited the data of a version")
+
+	return nil
 }
