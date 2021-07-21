@@ -16,6 +16,7 @@ type DbLog struct {
 	L   *logger.LogStruct
 	DbR *mongo.Collection
 	DbV *mongo.Collection
+	DbC *mongo.Collection
 }
 
 // add a new rom
@@ -219,5 +220,22 @@ func (r *DbLog) addReview(c *gin.Context) {
 
 	// return the list of rom name
 	api.ApiRes(c, err, r.L, gin.H{"res": "added the comment"})
+
+}
+
+// add a review to the db
+func (r *DbLog) getReview(c *gin.Context) {
+
+	romId := c.Param("romid")
+
+	// get the list of comment
+	comments, err := r.getReviewDB(romId)
+
+	if comments == nil {
+		comments = []*CommentModel{}
+	}
+
+	// return the list of rom name
+	api.ApiRes(c, err, r.L, gin.H{"list": comments})
 
 }

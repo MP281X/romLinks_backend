@@ -292,14 +292,11 @@ func (r *DbLog) searchRomNameDB(romName string) ([]string, error) {
 		return nil, logger.ErrDbRead
 	}
 
-	// add the rom name to the rom name list
-	for cursor.Next(context.TODO()) {
+	defer cursor.Close(context.TODO())
 
-		var name bson.M
-		if err = cursor.Decode(&name); err != nil {
-			return nil, logger.ErrDbRead
-		}
-		romNameList = append(romNameList, name["romname"].(string))
+	// interate every result and add them to the versionList slice
+	if err = cursor.All(context.TODO(), &romName); err != nil {
+		return nil, logger.ErrDbRead
 	}
 
 	// return the rom name list
@@ -405,11 +402,35 @@ func (r *DbLog) addReviewDB(token string, comment *CommentModel) error {
 		{Key: "$inc", Value: bson.M{"review.reviewnum": 1}},
 		{Key: "$push", Value: bson.M{"comment": comment}},
 	})
+	if err != nil {
+		return logger.ErrDbWrite
+	}
 
+	// insert the comment in the db
+	_, err = r.DbC.InsertOne(context.TODO(), comment)
 	if err != nil {
 		return logger.ErrDbWrite
 	}
 
 	// return a list of rom unverified
 	return nil
+}
+
+func (r *DbLog) getReviewDB(romId string) ([]*CommentModel, error) {
+	var commentList []*CommentModel
+
+	// search the rom name in the db
+	cursor, err := r.DbC.Find(context.TODO(), bson.M{"romid": romId}, options.Find().SetSort(bson.D{}).SetLimit(25))
+	if err != nil {
+		fmt.Println(err.Error())
+		return nil, logger.ErrDbRead
+	}
+
+	// interate every result and add them to the comment list
+	if err = cursor.All(context.TODO(), &commentList); err != nil {
+		return nil, logger.ErrDbRead
+	}
+
+	// return the comment list
+	return commentList, nil
 }

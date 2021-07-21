@@ -1,7 +1,9 @@
 FROM golang:1.16.5-alpine3.14 AS builder
 WORKDIR /app
 COPY . .
-RUN go build -o deviceService ./services/deviceService/deviceService.go
+RUN go build -ldflags="-s -w" -o deviceService ./services/deviceService/deviceService.go
+RUN apk add upx
+RUN upx /app/deviceService
 
 FROM alpine:3.13.5
 WORKDIR /app
