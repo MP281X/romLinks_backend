@@ -4,68 +4,74 @@ services:
     # mongodb
     mongodb:
         image: mongo
+        ports: 
+            - 27017:27017
         volumes: 
             - mongo-data:/data/db
+            - mongo-config:/data/configdb
 
     # device service
     device-service:
-        image: device-service:latest
+        image: ghcr.io/mp281x/device-service:latest
         depends_on: 
             - mongodb
         ports: 
             - 9090:9090
         environment: 
             - logFile=false
-            - mongoUri=
-            - jwtKey=
+            - mongoUri=mongodb://romlinks_backend_mongodb_1:27017/?readPreference=primary&ssl=false
+            - jwtKey=localJwtKey
         volumes: 
             - log:/app/log
     
     # file storage service
     file_storage-service:
-        image: file_storage-service:latest
+        image: ghcr.io/mp281x/file_storage-service:latest
         depends_on: 
             - mongodb
         ports: 
             - 9091:9091
         environment: 
             - logFile=false
-            - mongoUri=
-            - jwtKey=
+            - mongoUri=mongodb://romlinks_backend_mongodb_1:27017/?readPreference=primary&ssl=false
+            - jwtKey=localJwtKey
         volumes: 
             - log:/app/log
             - asset:/app/asset
 
     # rom service
     rom-service:
-        image: rom-service:latest
+        image: ghcr.io/mp281x/rom-service:latest
         depends_on: 
             - mongodb
         ports: 
             - 9092:9092
         environment: 
             - logFile=false
-            - mongoUri=
-            - jwtKey=
+            - mongoUri=mongodb://romlinks_backend_mongodb_1:27017/?readPreference=primary&ssl=false
+            - jwtKey=localJwtKey
         volumes: 
             - log:/app/log
 
     # user service
     user-service:
-        image: user-service:latest
+        image: ghcr.io/mp281x/user-service:latest
         depends_on: 
             - mongodb
         ports: 
             - 9093:9093
         environment: 
             - logFile=false
-            - mongoUri=
-            - jwtKey=
+            - mongoUri=mongodb://romlinks_backend_mongodb_1:27017/?readPreference=primary&ssl=false
+            - jwtKey=localJwtKey
         volumes: 
             - log:/app/log
 
+# create the docker volume if they doesn't exist
 volumes: 
     mongo-data:
+        driver: local
+    mongo-config:
         driver: local
     log:
         driver: local

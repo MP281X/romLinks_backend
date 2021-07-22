@@ -14,42 +14,20 @@ fileStorageService:
 romService:
 	go run ./services/romService/romService.go
 
-# clear the docker images
-clear_images:
-	sudo rm -r ./docker/*
-
-#build all the docker image
-buildAll:
-	docker build -f ./services/userService/Dockerfile -t user-service:latest .
-	docker build -f ./services/romService/Dockerfile -t rom-service:latest .
-	docker build -f ./services/fileStorageService/Dockerfile -t file_storage-service:latest .
-	docker build -f ./services/deviceService/Dockerfile -t device-service:latest .
-
-#save all the docker image
-saveImages:
-	docker save -o ./docker/user-service.tar user-service
-	docker save -o ./docker/rom-service.tar rom-service
-	docker save -o ./docker/file_storage-service.tar file_storage-service
-	docker save -o ./docker/device-service.tar device-service
-
-# disable git tracking for docker-compose file
-stopGitDockerfile:
-	git update-index --assume-unchanged docker-compose.yaml
-
-# disable git tracking for docker-compose file
-startGitDockerfile:
-	git update-index --no-assume-unchanged docker-compose.yaml
-
-# run all the container
-runDockerCompose:
-	docker compose -f docker-compose.yaml up -d
-
-# close all the container
-closeDockerCompose:
+# build all the docker-image, push them to the registry and restart the service
+docker:
 	docker compose -f docker-compose.yaml down
 
-# build all the docker-image and restart the service
-updateAndRestart:
-	make closeDockerCompose
-	make buildAll
-	make runDockerCompose
+	docker build -f ./services/userService/Dockerfile -t ghcr.io/mp281x/user-service:latest .
+	docker build -f ./services/romService/Dockerfile -t ghcr.io/mp281x/rom-service:latest .
+	docker build -f ./services/fileStorageService/Dockerfile -t ghcr.io/mp281x/file_storage-service:latest .
+	docker build -f ./services/deviceService/Dockerfile -t ghcr.io/mp281x/device-service:latest .
+	
+	docker compose -f docker-compose.yaml up -d
+
+	docker push ghcr.io/mp281x/user-service:latest
+	docker push ghcr.io/mp281x/rom-service:latest
+	docker push ghcr.io/mp281x/file_storage-service:latest
+	docker push ghcr.io/mp281x/device-service:latest
+
+	docker image prune 
