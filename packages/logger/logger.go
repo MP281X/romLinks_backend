@@ -56,10 +56,10 @@ func InitLogger(serviceName string) (*LogStruct, error) {
 		serviceName := serviceName
 		var err error
 
-		var date string = time.Now().Format("15:04 - 01 January 2006")
+		var date string = time.Now().Format("01-January-2006")
 
 		// open/create the log file
-		out, err = os.OpenFile("./log/"+serviceName+" -> "+date+".log",
+		out, err = os.OpenFile("./log/"+serviceName+"_"+date+".log",
 			os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 		if err != nil {
 			return nil, ErrLog
@@ -87,30 +87,19 @@ func InitLogger(serviceName string) (*LogStruct, error) {
 	return l, nil
 }
 
-// keep track of how many time the logger is called
-var err int = 0
-var dbRead int = 0
-var dbWrite int = 0
-var routes int = 0
-var fileSave int = 0
-var fileSend int = 0
-
 // error log
 func (l *LogStruct) Err(msg string) {
 	l.err.Println(msg)
-	err++
 }
 
 // db read log
 func (l *LogStruct) DbRead(msg string) {
 	l.dbRead.Println(msg)
-	dbRead++
 }
 
 // db write log
 func (l *LogStruct) DbWrite(msg string) {
 	l.dbWrite.Println(msg)
-	dbWrite++
 }
 
 // system log
@@ -122,17 +111,14 @@ func (l *LogStruct) System(msg string) {
 func (l *LogStruct) Routes(msg string) {
 
 	l.routes.Println(msg)
-	routes++
 }
 
 // save file
 func (l *LogStruct) FileSave(msg string) {
 	l.fileSave.Println(msg)
-	fileSave++
 }
 
 // read file
 func (l *LogStruct) SendFile(msg string) {
 	l.fileSend.Println(msg)
-	fileSend++
 }

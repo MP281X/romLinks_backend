@@ -1,14 +1,9 @@
 package api
 
 import (
-	"context"
-	"errors"
 	"io/ioutil"
-	"net/http"
 	"os"
-	"os/signal"
 	"strconv"
-	"syscall"
 	"time"
 
 	"github.com/MP281X/romLinks_backend/packages/logger"
@@ -70,28 +65,18 @@ func InitApi(routes func(*gin.Engine), port string, servicename string, l *logge
 	// pass the gin engine to the function that handle the routes
 	routes(app)
 
-	srv := &http.Server{
-		Addr:    port,
-		Handler: app,
-	}
 	// run the api on the specified port
-	go func() {
-		l.System("api running at http://0.0.0.0" + port + "/" + servicename)
-		if err = srv.ListenAndServe(); err != nil && errors.Is(err, http.ErrServerClosed) {
-			l.Err("unable to run the api on port " + port[1:])
+	l.System("api running")
+
+	// check if the service is in a docker container
+	tls, err := strconv.ParseBool(os.Getenv("tls"))
+	if err != nil || !tls {
+		if err = app.Run(port); err != nil {
+			l.Err("unable to start the " + servicename + port[1:])
 		}
-	}()
-
-	quit := make(chan os.Signal)
-
-	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
-	<-quit
-	l.System("closing the server")
-	ctx, c := context.WithTimeout(context.Background(), 5*time.Second)
-	defer c()
-
-	if err := srv.Shutdown(ctx); err != nil {
-		l.Err("server forced to shoutdown")
+	} else {
+		if err = app.RunTLS(port, "/app/certs/"+servicename+".pem", "/app/certs/"+servicename+".key"); err != nil {
+			l.Err("unable to start the " + servicename + port[1:])
+		}
 	}
-	l.System("server closed")
 }

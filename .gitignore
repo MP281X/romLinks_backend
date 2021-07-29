@@ -11,3 +11,4 @@ log
 asset
 docker/*
 server_docker.yaml
+data
