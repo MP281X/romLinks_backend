@@ -11,10 +11,10 @@ func ApiRes(c *gin.Context, err error, l *logger.LogStruct, res interface{}) {
 	// check for error
 	if err != nil {
 
-		l.Err(err.Error())
+		l.Warning(err.Error())
 
 		// return the error response
-		c.JSON(500, gin.H{
+		c.JSON(logger.ResCode(err), gin.H{
 			"err": err.Error(),
 		})
 		return

@@ -21,6 +21,7 @@ type DbLog struct {
 
 // add a new rom
 func (r *DbLog) addRom(c *gin.Context) {
+	c.Header("route", "add rom")
 
 	//decode the body
 	var rom *RomModel
@@ -36,6 +37,7 @@ func (r *DbLog) addRom(c *gin.Context) {
 
 // add a new rom
 func (r *DbLog) addVersion(c *gin.Context) {
+	c.Header("route", "add version")
 
 	//decode the body
 	var version *VersionModel
@@ -51,6 +53,7 @@ func (r *DbLog) addVersion(c *gin.Context) {
 
 // get the data of a rom
 func (r *DbLog) getRom(c *gin.Context) {
+	c.Header("route", "get rom")
 
 	// get the params from the uri
 	codename := c.Param("codename")
@@ -67,6 +70,7 @@ func (r *DbLog) getRom(c *gin.Context) {
 
 // get the data of a rom from the id
 func (r *DbLog) getRomById(c *gin.Context) {
+	c.Header("route", "get rom by id")
 
 	// get the params from the uri
 	romId := c.Param("id")
@@ -81,6 +85,7 @@ func (r *DbLog) getRomById(c *gin.Context) {
 
 // return a list of unverified rom
 func (r *DbLog) getUnverifiedRom(c *gin.Context) {
+	c.Header("route", "get unverified rom")
 
 	// get the token from the header
 	token := c.GetHeader("token")
@@ -97,6 +102,7 @@ func (r *DbLog) getUnverifiedRom(c *gin.Context) {
 
 // approve a rom
 func (r *DbLog) approveRom(c *gin.Context) {
+	c.Header("route", "approve rom")
 
 	// get the romId from the uri
 	romId := c.Param("romid")
@@ -114,6 +120,7 @@ func (r *DbLog) approveRom(c *gin.Context) {
 
 // get a list of verified rom
 func (r *DbLog) getRomList(c *gin.Context) {
+	c.Header("route", "get rom list")
 
 	// get the params from the uri
 	codename := c.Param("codename")
@@ -132,6 +139,7 @@ func (r *DbLog) getRomList(c *gin.Context) {
 
 // get a list of verified rom
 func (r *DbLog) getVersionList(c *gin.Context) {
+	c.Header("route", "get version list")
 
 	// get the params from the uri
 	codename := c.Param("codename")
@@ -149,6 +157,7 @@ func (r *DbLog) getVersionList(c *gin.Context) {
 
 // get a list of device codename
 func (r *DbLog) searchRomName(c *gin.Context) {
+	c.Header("route", "search rom name")
 
 	// get the rom name from the uri
 	romName := c.Param("name")
@@ -165,6 +174,7 @@ func (r *DbLog) searchRomName(c *gin.Context) {
 
 // get a list of device codename
 func (r *DbLog) incrementDownload(c *gin.Context) {
+	c.Header("route", "increment download")
 
 	// get the rom id from the uri
 	romId := c.Param("id")
@@ -180,6 +190,7 @@ func (r *DbLog) incrementDownload(c *gin.Context) {
 
 // return a list of rom and version uploaded by the user
 func (r *DbLog) getUploaded(c *gin.Context) {
+	c.Header("route", "get uploaded")
 
 	// get the token from the header
 	token := c.GetHeader("token")
@@ -207,6 +218,7 @@ func (r *DbLog) getUploaded(c *gin.Context) {
 
 // add a review to the db
 func (r *DbLog) addReview(c *gin.Context) {
+	c.Header("route", "add review")
 
 	token := c.GetHeader("token")
 
@@ -225,6 +237,7 @@ func (r *DbLog) addReview(c *gin.Context) {
 
 // add a review to the db
 func (r *DbLog) getReview(c *gin.Context) {
+	c.Header("route", "get review")
 
 	romId := c.Param("romid")
 
@@ -242,6 +255,7 @@ func (r *DbLog) getReview(c *gin.Context) {
 
 // edit the data of a rom
 func (r *DbLog) editRomData(c *gin.Context) {
+	c.Header("route", "edit rom data")
 
 	romId := c.Param("romid")
 	token := c.GetHeader("token")
@@ -261,6 +275,7 @@ func (r *DbLog) editRomData(c *gin.Context) {
 
 // edit the data of a version
 func (r *DbLog) editVersionData(c *gin.Context) {
+	c.Header("route", "edit version data")
 
 	versionId := c.Param("versionid")
 	token := c.GetHeader("token")
@@ -275,5 +290,35 @@ func (r *DbLog) editVersionData(c *gin.Context) {
 
 	// return a message
 	api.ApiRes(c, err, r.L, gin.H{"res": "edited the version data"})
+
+}
+
+// delete a version
+func (r *DbLog) removeVersion(c *gin.Context) {
+	c.Header("route", "delete version")
+
+	versionId := c.Param("versionid")
+	token := c.GetHeader("token")
+
+	// edit the data of the version
+	err := r.removeVersionDB(token, versionId)
+
+	// return a message
+	api.ApiRes(c, err, r.L, gin.H{"res": "removed the version"})
+
+}
+
+// delete a rom
+func (r *DbLog) removeRom(c *gin.Context) {
+	c.Header("route", "delete rom")
+
+	romId := c.Param("romid")
+	token := c.GetHeader("token")
+
+	// edit the data of the version
+	err := r.removeRomDB(token, romId)
+
+	// return a message
+	api.ApiRes(c, err, r.L, gin.H{"res": "removed the rom"})
 
 }

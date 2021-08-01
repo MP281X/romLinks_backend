@@ -19,6 +19,7 @@ type DbLog struct {
 
 // create a new user
 func (r *DbLog) signUp(c *gin.Context) {
+	c.Header("route", "sign up")
 
 	// decode the body
 	var user *UserModel
@@ -34,6 +35,7 @@ func (r *DbLog) signUp(c *gin.Context) {
 
 // return the data of a user
 func (r *DbLog) getUser(c *gin.Context) {
+	c.Header("route", "get user")
 
 	// get the token from the header
 	token := c.GetHeader("token")
@@ -47,6 +49,7 @@ func (r *DbLog) getUser(c *gin.Context) {
 
 // generate a token for the user
 func (r *DbLog) logIn(c *gin.Context) {
+	c.Header("route", "get user")
 
 	// get the user auth data from the header
 	username := c.GetHeader("username")
@@ -61,6 +64,7 @@ func (r *DbLog) logIn(c *gin.Context) {
 
 // edit the user permission
 func (r *DbLog) editUserPerm(c *gin.Context) {
+	c.Header("route", "edit user perm")
 
 	// get data from the uri
 	username := c.Param("username")

@@ -43,3 +43,7 @@ docker-push:
 	docker push ghcr.io/mp281x/rom-service:latest
 	docker push ghcr.io/mp281x/file_storage-service:latest
 	docker push ghcr.io/mp281x/device-service:latest
+
+# clear data
+docker-clear:
+	sudo rm -r ./data

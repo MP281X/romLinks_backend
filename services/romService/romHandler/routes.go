@@ -4,8 +4,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-//TODO: create a route for editing the rom data/rom version
-//TODO: create a router for deleting a rom/version
 // contains all the service routes
 func (r *DbLog) RomRoutes(app *gin.Engine) {
 
@@ -26,6 +24,8 @@ func (r *DbLog) RomRoutes(app *gin.Engine) {
 	app.GET("/review/:romid", r.getReview)
 	app.PUT("/rom/:romid", r.editRomData)
 	app.PUT("/version/:versionid", r.editVersionData)
+	app.DELETE("/version/:versionid", r.removeVersion)
+	app.DELETE("/rom/:romid", r.removeRom)
 }
 
 // root route

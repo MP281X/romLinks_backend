@@ -2,7 +2,6 @@ package devicehandler
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"strings"
 
@@ -33,12 +32,12 @@ func (r *DbLog) addDeviceDB(device *DeviceModel, token string) error {
 	_, err = r.Db.InsertOne(context.TODO(), device)
 	if err != nil {
 		if strings.Contains(err.Error(), "duplicate key error") {
-			return logger.ErrDuplicateKey
+			return logger.ErrDeviceAlreadyExist
 		}
 		return logger.ErrDbWrite
 	}
 
-	r.L.DbWrite("added " + device.Codename + " to the db")
+	r.L.Info(tokenData.Username + " added " + device.Codename)
 
 	return nil
 }
@@ -55,12 +54,10 @@ func (r *DbLog) getDeviceDB(codename string) (*DeviceModel, error) {
 		return nil, logger.ErrDbRead
 	}
 
-	r.L.DbRead("searched " + codename + " in the db")
-
 	return &device, nil
 }
 
-//TODO: da fixare
+// edit the info of a device
 func (r *DbLog) editDeviceDB(codename string, device *EditDeviceModel, token string) (string, error) {
 
 	// get the token data
@@ -73,7 +70,7 @@ func (r *DbLog) editDeviceDB(codename string, device *EditDeviceModel, token str
 	var x DeviceModel
 	err = r.Db.FindOne(context.TODO(), bson.M{"codename": codename}).Decode(&x)
 	if err != nil {
-		return "", logger.ErrDbRead
+		return "", logger.ErrUnauthorized
 	}
 
 	// check if the user is authorized
@@ -86,10 +83,10 @@ func (r *DbLog) editDeviceDB(codename string, device *EditDeviceModel, token str
 		"$set": device,
 	})
 	if err != nil {
-		return "", errors.New("unable to edit the device info")
+		return "", logger.ErrDbEdit
 	}
 
-	r.L.DbWrite("edited the info of " + x.Codename)
+	r.L.Info(tokenData.Username + " edited the info of " + x.Codename)
 
 	return codename, nil
 }
@@ -142,6 +139,8 @@ func (r *DbLog) getUploadedDB(token string) ([]*DeviceModel, error) {
 	if err = devices.All(context.TODO(), &deviceList); err != nil {
 		return nil, logger.ErrDbRead
 	}
+
+	r.L.Info(tokenData.Username + " searched all the device he uploaded")
 
 	return deviceList, nil
 }

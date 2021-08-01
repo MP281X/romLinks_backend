@@ -10,6 +10,7 @@ import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-contrib/gzip"
 	"github.com/gin-gonic/gin"
+	influxdb2 "github.com/influxdata/influxdb-client-go/v2"
 )
 
 // initialize gin
@@ -37,27 +38,24 @@ func InitApi(routes func(*gin.Engine), port string, servicename string, l *logge
 	// write the gin logger to noting
 	gin.DefaultWriter = ioutil.Discard
 
-	// set the color for the log
-	var cyan string = "\033[34m"
-	var cancel string = "\033[0m"
+	// intialize the influx db client
+	influx := influxdb2.NewClient("http://influxdb:8086", os.Getenv("influxToken")).WriteAPI(os.Getenv("influxOrg"), os.Getenv("influxBucket"))
 
-	// check if the service is in a docker container
-	logFile, err := strconv.ParseBool(os.Getenv("logFile"))
-	if err != nil {
-		logFile = false
-	}
+	// logging and metrics middleware
+	app.Use(func(c *gin.Context) {
+		// calculate the latency
+		start := time.Now()
+		c.Next()
+		end := time.Now()
 
-	if logFile {
-		// delete the color tag in the log file
-		cancel = ""
-		cyan = ""
-	}
+		// add the data to the metrics db
+		p := influxdb2.NewPoint(servicename+"_routes",
+			map[string]string{"route": c.Writer.Header().Get("route"), "method": c.Request.Method},
+			map[string]interface{}{"latency": end.Sub(start).Milliseconds(), "statusCode": c.Writer.Status()},
+			time.Now())
 
-	// custom logger
-	app.Use(gin.LoggerWithFormatter(func(param gin.LogFormatterParams) string {
-		l.Routes(cyan + param.Method + ":	" + cancel + param.Path + cyan + " 	Latency: " + cancel + param.Latency.String())
-		return ""
-	}))
+		influx.WritePoint(p)
+	})
 
 	// use gzip
 	app.Use(gzip.Gzip(gzip.BestCompression))
@@ -66,17 +64,17 @@ func InitApi(routes func(*gin.Engine), port string, servicename string, l *logge
 	routes(app)
 
 	// run the api on the specified port
-	l.System("api running")
+	l.Info("api running")
 
 	// check if the service is in a docker container
 	tls, err := strconv.ParseBool(os.Getenv("tls"))
 	if err != nil || !tls {
 		if err = app.Run(port); err != nil {
-			l.Err("unable to start the " + servicename + port[1:])
+			l.Error("unable to start the api on this port")
 		}
 	} else {
 		if err = app.RunTLS(port, "/app/certs/"+servicename+".pem", "/app/certs/"+servicename+".key"); err != nil {
-			l.Err("unable to start the " + servicename + port[1:])
+			l.Error("unable to start the api on this port")
 		}
 	}
 }

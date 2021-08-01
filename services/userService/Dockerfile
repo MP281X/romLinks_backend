@@ -1,4 +1,4 @@
-FROM golang:1.16.5-alpine3.14 AS builder
+FROM golang:1.16.6-alpine3.14 AS builder
 WORKDIR /app
 COPY . .
 RUN go build -ldflags="-s -w" -o userService ./services/userService/userService.go

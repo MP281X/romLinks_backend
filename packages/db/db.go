@@ -2,10 +2,10 @@ package db
 
 import (
 	"context"
+	"errors"
 	"os"
 	"time"
 
-	"github.com/MP281X/romLinks_backend/packages/logger"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -16,7 +16,7 @@ func InitDB(servicename string) (*mongo.Database, error) {
 	// initialize mongodb client
 	client, err := mongo.NewClient(options.Client().ApplyURI(os.Getenv("mongoUri")))
 	if err != nil {
-		return nil, logger.ErrDbInit
+		return nil, errors.New("unable to connect to the db")
 	}
 
 	ctx, cancel := context.WithTimeout(context.TODO(), 10*time.Second)
@@ -25,7 +25,14 @@ func InitDB(servicename string) (*mongo.Database, error) {
 	err = client.Connect(ctx)
 	if err != nil {
 		cancel()
-		return nil, logger.ErrDbInit
+		return nil, errors.New("unable to connect to the db")
+	}
+
+	// check if the connection work
+	err = client.Ping(ctx, nil)
+	if err != nil {
+		cancel()
+		return nil, errors.New("unable to connect to the db")
 	}
 
 	// close the connection when the service close

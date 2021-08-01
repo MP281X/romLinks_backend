@@ -14,7 +14,10 @@ type Log struct {
 	L *logger.LogStruct
 }
 
+//TODO: improve
+
 func (l *Log) getImage(c *gin.Context) {
+	c.Header("route", "get image")
 
 	// get the params from the url
 	category := strings.ToLower(c.Param("category"))
@@ -25,19 +28,18 @@ func (l *Log) getImage(c *gin.Context) {
 
 	// check if the file exist
 	if _, err := os.Stat(path); os.IsNotExist(err) {
-		l.L.Err("image not found")
+		l.L.Warning("image not found")
 		c.File("")
-		l.L.Err("image not found")
+		l.L.Warning("image not found")
 		return
 	}
-
-	l.L.SendFile("sended an image")
 
 	// return the file
 	c.File(path)
 }
 
 func (l *Log) saveImage(c *gin.Context) {
+	c.Header("route", "save image")
 
 	// get the token data
 	token := c.GetHeader("token")
@@ -47,7 +49,7 @@ func (l *Log) saveImage(c *gin.Context) {
 		c.JSON(500, gin.H{
 			"err": logger.ErrUnauthorized.Error(),
 		})
-		l.L.Err(logger.ErrUnauthorized.Error())
+		l.L.Warning(logger.ErrUnauthorized.Error())
 		return
 	}
 
@@ -62,7 +64,7 @@ func (l *Log) saveImage(c *gin.Context) {
 		c.JSON(500, gin.H{
 			"err": "invalid image data",
 		})
-		l.L.Err("invalid image data")
+		l.L.Warning("invalid image data")
 		return
 	}
 
@@ -72,7 +74,7 @@ func (l *Log) saveImage(c *gin.Context) {
 		c.JSON(500, gin.H{
 			"err": "invalid index",
 		})
-		l.L.Err("invalid index")
+		l.L.Warning("invalid index")
 		return
 	}
 
@@ -88,11 +90,11 @@ func (l *Log) saveImage(c *gin.Context) {
 		c.JSON(500, gin.H{
 			"err": "invalid category",
 		})
-		l.L.Err("invalid category")
+		l.L.Warning("invalid category")
 		return
 	}
 
-	l.L.FileSave("saved an image in the " + category + " directory")
+	l.L.Info(tokenData.Username + " saved an image in the " + category + " directory")
 
 	// get the file from the body
 	file, err := c.FormFile("file")
@@ -100,7 +102,7 @@ func (l *Log) saveImage(c *gin.Context) {
 		c.JSON(500, gin.H{
 			"err": "unable to get the image",
 		})
-		l.L.Err("unable to get the image")
+		l.L.Warning("unable to get the image")
 		return
 	}
 
@@ -110,7 +112,7 @@ func (l *Log) saveImage(c *gin.Context) {
 		c.JSON(500, gin.H{
 			"msg": "unable to save the image",
 		})
-		l.L.Err("unable to save the image")
+		l.L.Warning("unable to save the image")
 		return
 	}
 
@@ -122,6 +124,7 @@ func (l *Log) saveImage(c *gin.Context) {
 
 // save the profile picture of a user
 func (l *Log) saveProfilePicture(c *gin.Context) {
+	c.Header("route", "save profile image")
 
 	// get the token data
 	token := c.GetHeader("token")
@@ -151,11 +154,11 @@ func (l *Log) saveProfilePicture(c *gin.Context) {
 		c.JSON(500, gin.H{
 			"msg": "unable to save the image",
 		})
-		l.L.Err("unable to save the image")
+		l.L.Warning("unable to save the image")
 		return
 	}
 
-	l.L.FileSave("saved an image in the profile directory")
+	l.L.Info(tokenData.Username + " saved an image in the profile directory")
 
 	// send the file link
 	c.JSON(200, gin.H{

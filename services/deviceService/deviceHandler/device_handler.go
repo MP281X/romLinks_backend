@@ -19,6 +19,7 @@ type DbLog struct {
 
 // add a new device
 func (r *DbLog) addDevice(c *gin.Context) {
+	c.Header("route", "add device")
 
 	// decode the body
 	var device *DeviceModel
@@ -37,6 +38,7 @@ func (r *DbLog) addDevice(c *gin.Context) {
 
 // return the device info
 func (r *DbLog) getDevice(c *gin.Context) {
+	c.Header("route", "get device")
 
 	// get the device from the db
 	device, err := r.getDeviceDB(c.Param("codename"))
@@ -47,6 +49,7 @@ func (r *DbLog) getDevice(c *gin.Context) {
 
 // edit the device info
 func (r *DbLog) editDevice(c *gin.Context) {
+	c.Header("route", "edit device")
 
 	// decode the body
 	var device *EditDeviceModel
@@ -67,6 +70,7 @@ func (r *DbLog) editDevice(c *gin.Context) {
 
 // get a list of device codename
 func (r *DbLog) searchDeviceName(c *gin.Context) {
+	c.Header("route", "search device")
 
 	// get the device name from the uri
 	romName := c.Param("name")
@@ -81,6 +85,7 @@ func (r *DbLog) searchDeviceName(c *gin.Context) {
 
 // return a list of uploaded devices
 func (r *DbLog) getUploaded(c *gin.Context) {
+	c.Header("route", "get uploaded")
 
 	// get the token from the header
 	token := c.GetHeader("token")

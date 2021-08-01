@@ -2,7 +2,6 @@ package userHandler
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"strings"
 
@@ -29,12 +28,12 @@ func (r *DbLog) signUpDB(user *UserModel) (string, error) {
 	id, err := r.Db.InsertOne(context.TODO(), user)
 	if err != nil {
 		if strings.Contains(err.Error(), "duplicate key error") {
-			return "", logger.ErrDuplicateKey
+			return "", logger.ErrUserAlreadyExist
 		}
 		return "", logger.ErrDbWrite
 	}
 
-	r.L.DbWrite("created a new user")
+	r.L.Info("created an account for " + user.Username)
 
 	// convert the id to a string
 	userId := fmt.Sprintf("%v", id.InsertedID)
@@ -43,7 +42,7 @@ func (r *DbLog) signUpDB(user *UserModel) (string, error) {
 	// generate the jwt
 	token, err := encryption.GenerateJwt(userId, &encryption.TokenData{Verified: false, Moderator: false, Username: user.Username})
 	if err != nil {
-		return "", errors.New("unable generate the user token")
+		return "", logger.ErrTokenGen
 	}
 
 	// return the jwt token
@@ -67,7 +66,7 @@ func (r *DbLog) getUserDB(token string) (*UserModel, error) {
 		return nil, logger.ErrDbRead
 	}
 
-	r.L.DbRead("readed the data of a user")
+	r.L.Info("readed the data of " + tokenData.Username)
 
 	// remove the password from the return
 	user.Password = ""
@@ -95,7 +94,7 @@ func (r *DbLog) logInDB(username string, password string) (string, error) {
 		return "", logger.ErrDbRead
 	}
 
-	r.L.DbRead("readed the data of a user")
+	r.L.Info("readed the data of " + username)
 
 	// check if the user is banned
 	if user.Ban {
@@ -137,15 +136,17 @@ func (r *DbLog) userPermDB(token string, username string, perm string, value boo
 
 		// edit the user perm
 		_, err := r.Db.UpdateOne(context.TODO(), bson.M{"username": strings.ToLower(username)}, bson.D{
-			{"$set", bson.M{perm: value}},
+			{Key: "$set", Value: bson.M{perm: value}},
 		})
 		if err != nil {
-			return errors.New("unable to edit the user data")
+			return logger.ErrDbEdit
 		}
 
 		return nil
 	}
 
-	return logger.ErrInvalidKey
+	r.L.Info(tokenData.Username + " edited the data of " + username)
+
+	return logger.ErrDbEdit
 
 }

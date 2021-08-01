@@ -1,85 +1,116 @@
 version: '3'
 services: 
     
+    grafana:
+        image: grafana/grafana:latest
+        container_name: "grafana"
+        depends_on: 
+            - influxdb
+        ports:
+          - 3000:3000
+
+    influxdb:
+        image: influxdb:latest
+        container_name: "influxdb"
+        ports: 
+            - 8086:8086
+        environment: 
+            - DOCKER_INFLUXDB_INIT_MODE=setup
+            - DOCKER_INFLUXDB_INIT_USERNAME
+            - DOCKER_INFLUXDB_INIT_PASSWORD
+            - DOCKER_INFLUXDB_INIT_ORG=${influxOrg}
+            - DOCKER_INFLUXDB_INIT_BUCKET=${influxBucket}
+            - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=${influxToken}
+        volumes: 
+            - ./data/influx-data:/var/lib/influxdb2
+            - ./data/influx-config:/etc/influxdb2
+
     mongodb:
         image: mongo
         container_name: "mongodb"
-        restart: on-failure:5 
+        command: [--auth]
+        environment:
+          - MONGO_INITDB_ROOT_USERNAME
+          - MONGO_INITDB_ROOT_PASSWORD
         ports: 
             - 27017:27017
         volumes: 
             - ./data/mongo-data:/data/db
             - ./data/mongo-config:/data/configdb
 
-    # device service
     device-service:
         image: ghcr.io/mp281x/device-service:latest
         container_name: "device-service"
-        restart: on-failure:5 
         depends_on: 
             - mongodb
+            - influxdb
         ports: 
             - 9090:9090
         environment: 
-            - logFile=false
-            - tls=false
-            - mongoUri=mongodb://mongodb:27017/?readPreference=primary&ssl=false
-            - jwtKey=localJwtKey
+            - logFile
+            - tls
+            - mongoUri
+            - jwtKey
+            - influxToken
+            - influxOrg
+            - influxBucket
         volumes: 
             - ./data/log:/app/log
-            - ./certs:/app/certs
     
-    # file storage service
     file_storage-service:
         image: ghcr.io/mp281x/file_storage-service:latest
         container_name: "file_storage-service"
-        restart: on-failure:5 
         depends_on: 
             - mongodb
+            - influxdb
         ports: 
             - 9091:9091
         environment: 
-            - logFile=false
-            - tls=false
-            - mongoUri=mongodb://mongodb:27017/?readPreference=primary&ssl=false
-            - jwtKey=localJwtKey
+            - logFile
+            - tls
+            - mongoUri
+            - jwtKey
+            - influxToken
+            - influxOrg
+            - influxBucket
         volumes: 
             - ./data/log:/app/log
             - ./data/asset:/app/asset
-            - ./certs:/app/certs
 
-    # rom service
     rom-service:
         image: ghcr.io/mp281x/rom-service:latest
         container_name: "rom-service"
-        restart: on-failure:5 
         depends_on: 
             - mongodb
+            - influxdb
         ports: 
             - 9092:9092
         environment: 
-            - logFile=false
-            - tls=false
-            - mongoUri=mongodb://mongodb:27017/?readPreference=primary&ssl=false
-            - jwtKey=localJwtKey
+            - logFile
+            - tls
+            - mongoUri
+            - jwtKey
+            - influxToken
+            - influxOrg
+            - influxBucket
         volumes: 
             - ./data/log:/app/log
-            - ./certs:/app/certs
 
-    # user service
     user-service:
         image: ghcr.io/mp281x/user-service:latest
         container_name: "user-service"
-        restart: on-failure:5 
         depends_on: 
             - mongodb
+            - influxdb
         ports: 
             - 9093:9093
         environment: 
-            - logFile=false
-            - tls=false
-            - mongoUri=mongodb://mongodb:27017/?readPreference=primary&ssl=false
-            - jwtKey=localJwtKey
+            - logFile
+            - tls
+            - mongoUri
+            - jwtKey
+            - influxToken
+            - influxOrg
+            - influxBucket
         volumes: 
             - ./data/log:/app/log
-            - ./certs:/app/certs

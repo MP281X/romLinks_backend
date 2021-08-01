@@ -17,7 +17,7 @@ func main() {
 		fmt.Println(err.Error())
 		return
 	}
-	l.System("logger initialized")
+	l.Info("logger initialized")
 
 	// generate the required folder
 	genFolder(l)
@@ -36,5 +36,5 @@ func genFolder(l *logger.LogStruct) {
 	os.Mkdir("./asset/logo", os.ModePerm)
 	os.Mkdir("./asset/profile", os.ModePerm)
 	os.Mkdir("./asset/screenshot", os.ModePerm)
-	l.System("created the asset folder")
+	l.Info("created the asset folder")
 }

@@ -2,7 +2,6 @@ package romhandler
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"strings"
 
@@ -46,7 +45,7 @@ func (r *DbLog) addRomDB(rom *RomModel, token string) (string, error) {
 	userId := fmt.Sprintf("%v", id.InsertedID)
 	userId = userId[10 : len(userId)-2]
 
-	r.L.DbWrite("added a new rom")
+	r.L.Info(tokenData.Username + " added a new rom: " + rom.RomName)
 
 	return userId, nil
 }
@@ -92,7 +91,7 @@ func (r *DbLog) addVersionDB(version *VersionModel, token string) (string, error
 	userId := fmt.Sprintf("%v", id.InsertedID)
 	userId = userId[10 : len(userId)-2]
 
-	r.L.DbWrite("added a new version")
+	r.L.Info(tokenData.Username + " added a new version for " + version.RomId)
 
 	return userId, nil
 }
@@ -117,8 +116,6 @@ func (r *DbLog) getRomDB(codename string, androidVersion float32, romName string
 		return nil, logger.ErrDbRead
 	}
 
-	r.L.DbRead("readed the data of a rom")
-
 	// return the rom data
 	return &rom, nil
 }
@@ -131,7 +128,7 @@ func (r *DbLog) getRomByIdDB(id string) (*RomModel, error) {
 
 	romId, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
-		return nil, errors.New("invalid id")
+		return nil, logger.ErrDbRead
 	}
 
 	// search the rom in the db and decode the rom data
@@ -139,8 +136,6 @@ func (r *DbLog) getRomByIdDB(id string) (*RomModel, error) {
 	if err != nil {
 		return nil, logger.ErrDbWrite
 	}
-
-	r.L.DbRead("readed the data of a rom")
 
 	// return the rom data
 	return &rom, nil
@@ -174,6 +169,8 @@ func (r *DbLog) getUnverifiedRomDB(token string) ([]*RomModel, error) {
 		return nil, logger.ErrDbRead
 	}
 
+	r.L.Info(tokenData.Username + " searched for unverifyed rom")
+
 	// return a list of rom unverified
 	return romsList, nil
 }
@@ -205,7 +202,7 @@ func (r *DbLog) approveRomDB(romId string, token string) error {
 		return logger.ErrDbWrite
 	}
 
-	r.L.DbWrite("approved a rom")
+	r.L.Info(tokenData.Username + " approved a rom: " + romId)
 
 	return nil
 }
@@ -236,8 +233,6 @@ func (r *DbLog) getRomListDB(codename string, androidVersion float32, orderby st
 		return nil, logger.ErrDbRead
 	}
 
-	r.L.DbRead("readed a list of rom")
-
 	defer roms.Close(context.TODO())
 
 	// interate every result and add them to the romList slice
@@ -266,8 +261,6 @@ func (r *DbLog) getVersionListDB(codename string, romId string) ([]*VersionModel
 	if err != nil {
 		return nil, logger.ErrDbRead
 	}
-
-	r.L.DbRead("readed a list of version")
 
 	defer versions.Close(context.TODO())
 
@@ -312,7 +305,7 @@ func (r *DbLog) incrementDownloadDB(romId string, token string) error {
 	id, _ := primitive.ObjectIDFromHex(romId)
 
 	// check if the user is logged
-	_, err := encryption.GetTokenData(token)
+	tokenData, err := encryption.GetTokenData(token)
 	if err != nil {
 		return logger.ErrTokenRead
 	}
@@ -325,7 +318,7 @@ func (r *DbLog) incrementDownloadDB(romId string, token string) error {
 		return logger.ErrDbWrite
 	}
 
-	r.L.DbWrite("incremented the download counter")
+	r.L.Info(tokenData.Username + " incremented the download counter of " + romId)
 
 	return nil
 }
@@ -370,6 +363,8 @@ func (r *DbLog) getUploadedDB(token string) (*RomVersionModel, error) {
 		Rom:     romsList,
 		Version: versionList,
 	}
+
+	r.L.Info(tokenData.Username + " searched all the rom and version who has uploaded")
 	// return a list of rom unverified
 	return uploaded, nil
 }
@@ -410,6 +405,8 @@ func (r *DbLog) addReviewDB(token string, comment *CommentModel) error {
 	if err != nil {
 		return logger.ErrDbWrite
 	}
+
+	r.L.Info(tokenData.Username + " added a review for " + comment.RomId)
 
 	// return a list of rom unverified
 	return nil
@@ -469,7 +466,7 @@ func (r *DbLog) editRomDataDB(romData *EditRomModel, token string, romId string)
 		return logger.ErrDbWrite
 	}
 
-	r.L.DbWrite("edited the data of a rom")
+	r.L.Info(tokenData.Username + " edited the data of a rom: " + romId)
 
 	return nil
 }
@@ -509,7 +506,83 @@ func (r *DbLog) editVersionDataDB(versionData *EditVersionModel, token string, v
 		return logger.ErrDbWrite
 	}
 
-	r.L.DbWrite("edited the data of a version")
+	r.L.Info(tokenData.Username + " edited the data of a version: " + versionId)
+
+	return nil
+}
+
+// delete a version
+func (r *DbLog) removeVersionDB(token string, versionId string) error {
+
+	versionId = strings.ToLower(versionId)
+	var data VersionModel
+
+	// convert the version id in a object id
+	id, _ := primitive.ObjectIDFromHex(versionId)
+
+	// check if the token is valid
+	tokenData, err := encryption.GetTokenData(token)
+	if err != nil {
+		return err
+	}
+
+	// get the data of the version to delete
+	err = r.DbV.FindOne(context.TODO(), bson.M{"_id": id}).Decode(&data)
+	if err != nil {
+		return logger.ErrDbRead
+	}
+
+	// check if the user has the permission
+	if !tokenData.Moderator && tokenData.Username != data.UploadedBy {
+		return logger.ErrUnauthorized
+	}
+
+	// delete the version
+	_, err = r.DbV.DeleteOne(context.TODO(), bson.M{"_id": id})
+
+	if err != nil {
+		return logger.ErrDbWrite
+	}
+
+	r.L.Info(tokenData.Username + " deleted a version: " + versionId)
+
+	return nil
+}
+
+// delete a rom
+func (r *DbLog) removeRomDB(token string, romId string) error {
+
+	romId = strings.ToLower(romId)
+	var data RomModel
+
+	// convert the rom id in a object id
+	id, _ := primitive.ObjectIDFromHex(romId)
+
+	// check if the token is valid
+	tokenData, err := encryption.GetTokenData(token)
+	if err != nil {
+		return err
+	}
+
+	// get the data of the rom to delete
+	err = r.DbR.FindOne(context.TODO(), bson.M{"_id": id}).Decode(&data)
+	if err != nil {
+		return logger.ErrDbRead
+	}
+
+	// check if the user has the permission
+	if !tokenData.Moderator && tokenData.Username != data.UploadedBy {
+		return logger.ErrUnauthorized
+	}
+
+	// delete the rom
+	_, err = r.DbR.DeleteOne(context.TODO(), bson.M{"_id": id})
+
+	if err != nil {
+		return logger.ErrDbWrite
+	}
+
+	r.L.Info(tokenData.Username + " deleted a rom: " + romId)
 
 	return nil
 }

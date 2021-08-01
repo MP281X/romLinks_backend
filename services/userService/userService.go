@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/MP281X/romLinks_backend/packages/api"
@@ -21,23 +22,23 @@ func main() {
 		fmt.Println(err.Error())
 		return
 	}
-	l.System("logger initialized")
+	l.Info("logger initialized")
 
 	// connect to mongodb
 	db, err := db.InitDB("userService")
 	if err != nil {
-		l.Err("db initialized")
+		l.Error("db initialized")
 		return
 	}
-	l.System("db initialized")
+	l.Info("db initialized")
 
 	// set the index in mongodb
 	err = SetDbIndex(db)
 	if err != nil {
-		l.Err("added index to the db")
+		l.Error("added index to the db")
 		return
 	}
-	l.System("added index to the db")
+	l.Info("added index to the db")
 
 	// pass the logger and the db collection to the routes handler
 	r := &userHandler.DbLog{
@@ -64,7 +65,7 @@ func SetDbIndex(db *mongo.Database) error {
 	// add the index to the db
 	_, err := db.Collection("user").Indexes().CreateMany(context.TODO(), []mongo.IndexModel{index1, index2})
 	if err != nil {
-		return logger.ErrDbInit
+		return errors.New("unable to add the index to the db")
 	}
 	return nil
 }
