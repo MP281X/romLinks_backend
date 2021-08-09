@@ -9,6 +9,7 @@ import (
 	"github.com/MP281X/romLinks_backend/packages/logger"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
@@ -70,6 +71,10 @@ func (r *DbLog) addVersionDB(version *VersionModel, token string) (string, error
 	version.Codename = strings.TrimSpace(version.Codename)
 	version.Codename = strings.ToLower(version.Codename)
 
+	if tokenData.Verified || tokenData.Moderator {
+		version.Verified = true
+	}
+
 	// insert the version in the db
 	id, err := r.DbV.InsertOne(context.TODO(), version)
 	if err != nil {
@@ -79,7 +84,7 @@ func (r *DbLog) addVersionDB(version *VersionModel, token string) (string, error
 	// convert the rom id in a object id
 	romId, _ := primitive.ObjectIDFromHex(version.RomId)
 
-	// set true the verified filed
+	// add the codename of the device to the codename list in the rom
 	_, err = r.DbR.UpdateOne(context.TODO(), bson.M{"_id": romId}, bson.D{
 		{Key: "$addToSet", Value: bson.M{"codename": version.Codename}},
 	})
@@ -94,51 +99,6 @@ func (r *DbLog) addVersionDB(version *VersionModel, token string) (string, error
 	r.L.Info(tokenData.Username + " added a new version for " + version.RomId)
 
 	return userId, nil
-}
-
-// get the data of a rom
-func (r *DbLog) getRomDB(codename string, androidVersion float32, romName string) (*RomModel, error) {
-
-	codename = strings.ToLower(codename)
-	romName = strings.ToLower(romName)
-	// decode the rom data there
-	var rom RomModel
-
-	// search the rom in the db and decode the rom data
-	err := r.DbR.FindOne(context.TODO(), bson.M{
-		"$and": []bson.M{
-			{"codename": codename},
-			{"androidversion": androidVersion},
-			{"romname": romName},
-		},
-	}).Decode(&rom)
-	if err != nil {
-		return nil, logger.ErrDbRead
-	}
-
-	// return the rom data
-	return &rom, nil
-}
-
-// get the data of a rom
-func (r *DbLog) getRomByIdDB(id string) (*RomModel, error) {
-
-	// decode the rom data there
-	var rom RomModel
-
-	romId, err := primitive.ObjectIDFromHex(id)
-	if err != nil {
-		return nil, logger.ErrDbRead
-	}
-
-	// search the rom in the db and decode the rom data
-	err = r.DbR.FindOne(context.TODO(), bson.M{"_id": romId}).Decode(&rom)
-	if err != nil {
-		return nil, logger.ErrDbWrite
-	}
-
-	// return the rom data
-	return &rom, nil
 }
 
 // get a list of unverified rom
@@ -171,8 +131,42 @@ func (r *DbLog) getUnverifiedRomDB(token string) ([]*RomModel, error) {
 
 	r.L.Info(tokenData.Username + " searched for unverifyed rom")
 
-	// return a list of rom unverified
+	// return a list of unverified rom
 	return romsList, nil
+}
+
+// get a list of unverified version
+func (r *DbLog) getUnverifiedVersionDB(token string) ([]*VersionModel, error) {
+
+	// decode the version list there
+	var versionList []*VersionModel
+
+	// get the data from the token
+	tokenData, err := encryption.GetTokenData(token)
+	if err != nil {
+		return nil, logger.ErrTokenRead
+	}
+
+	// check if the user is a moderator
+	if !tokenData.Moderator {
+		return nil, logger.ErrUnauthorized
+	}
+
+	// search the versions in the db
+	versions, err := r.DbV.Find(context.TODO(), bson.M{"verified": false}, options.Find().SetSort(bson.D{}).SetLimit(20))
+	if err != nil {
+		return nil, logger.ErrDbRead
+	}
+
+	defer versions.Close(context.TODO())
+	if err = versions.All(context.TODO(), &versionList); err != nil {
+		return nil, logger.ErrDbRead
+	}
+
+	r.L.Info(tokenData.Username + " searched for unverifyed version")
+
+	// return a list of unverified version
+	return versionList, nil
 }
 
 // approve a rom
@@ -187,7 +181,7 @@ func (r *DbLog) approveRomDB(romId string, token string) error {
 	}
 
 	// check if the user has the permission
-	if !tokenData.Moderator && !tokenData.Verified {
+	if !tokenData.Moderator {
 		return logger.ErrUnauthorized
 	}
 
@@ -207,8 +201,40 @@ func (r *DbLog) approveRomDB(romId string, token string) error {
 	return nil
 }
 
+// approve a rom
+func (r *DbLog) approveVersionDB(versionId string, token string) error {
+
+	versionId = strings.ToLower(versionId)
+
+	// check if the token is valid
+	tokenData, err := encryption.GetTokenData(token)
+	if err != nil {
+		return err
+	}
+
+	// check if the user has the permission
+	if !tokenData.Moderator {
+		return logger.ErrUnauthorized
+	}
+
+	// convert the rom id in a object id
+	id, _ := primitive.ObjectIDFromHex(versionId)
+
+	// set true the verified filed
+	_, err = r.DbV.UpdateOne(context.TODO(), bson.M{"_id": id}, bson.D{
+		{Key: "$set", Value: bson.M{"verified": true}},
+	})
+	if err != nil {
+		return logger.ErrDbWrite
+	}
+
+	r.L.Info(tokenData.Username + " approved a version: " + versionId)
+
+	return nil
+}
+
 // get a list of rom
-func (r *DbLog) getRomListDB(codename string, androidVersion float32, orderby string) ([]*RomModel, error) {
+func (r *DbLog) getRomListDB(codename string, androidVersion float32, orderby string, romName string) ([]*RomModel, error) {
 
 	codename = strings.ToLower(codename)
 
@@ -216,19 +242,38 @@ func (r *DbLog) getRomListDB(codename string, androidVersion float32, orderby st
 	var romsList []*RomModel
 
 	findOptions := options.Find()
-	fmt.Println(orderby)
 	if orderby != "/" {
 		findOptions.SetSort(bson.M{orderby[1:]: -1})
 	}
 
-	// search the rom in the db
-	roms, err := r.DbR.Find(context.TODO(), bson.M{
-		"$and": []bson.M{
-			{"verified": true},
-			{"androidversion": androidVersion},
-			{"codename": codename},
-		},
-	}, findOptions)
+	var roms *mongo.Cursor
+	var err error
+	print(romName)
+	if romName == "" {
+
+		// search the rom in the db
+		roms, err = r.DbR.Find(context.TODO(), bson.M{
+			"$and": []bson.M{
+				{"verified": true},
+				{"androidversion": androidVersion},
+				{"codename": codename},
+			},
+		}, findOptions)
+
+	} else {
+
+		// search the rom in the db
+		roms, err = r.DbR.Find(context.TODO(), bson.M{
+			"$and": []bson.M{
+				{"verified": true},
+				{"androidversion": androidVersion},
+				{"codename": codename},
+			},
+			"$text": bson.M{"$search": romName},
+		}, findOptions)
+
+	}
+
 	if err != nil {
 		return nil, logger.ErrDbRead
 	}
@@ -254,6 +299,7 @@ func (r *DbLog) getVersionListDB(codename string, romId string) ([]*VersionModel
 	// search the version in the db
 	versions, err := r.DbV.Find(context.TODO(), bson.M{
 		"$and": []bson.M{
+			{"verified": true},
 			{"romid": romId},
 			{"codename": codename},
 		},
@@ -271,56 +317,6 @@ func (r *DbLog) getVersionListDB(codename string, romId string) ([]*VersionModel
 
 	// return the list of version
 	return versionList, nil
-}
-
-// get a list of rom name
-func (r *DbLog) searchRomNameDB(romName string) ([]string, error) {
-
-	romNameList := []string{}
-
-	// search the rom name in the db
-	cursor, err := r.DbR.Find(context.TODO(), bson.M{"$text": bson.M{"$search": romName}}, options.Find().SetSort(bson.D{}).SetLimit(3))
-	if err != nil {
-		fmt.Println(err.Error())
-		return nil, logger.ErrDbRead
-	}
-
-	defer cursor.Close(context.TODO())
-
-	// interate every result and add them to the versionList slice
-	if err = cursor.All(context.TODO(), &romName); err != nil {
-		return nil, logger.ErrDbRead
-	}
-
-	// return the rom name list
-	return romNameList, nil
-}
-
-// add one to the download counter
-func (r *DbLog) incrementDownloadDB(romId string, token string) error {
-
-	romId = strings.ToLower(romId)
-
-	// convert the rom id in a object id
-	id, _ := primitive.ObjectIDFromHex(romId)
-
-	// check if the user is logged
-	tokenData, err := encryption.GetTokenData(token)
-	if err != nil {
-		return logger.ErrTokenRead
-	}
-
-	// increment the download counter
-	_, err = r.DbV.UpdateOne(context.TODO(), bson.M{"_id": id}, bson.D{
-		{Key: "$inc", Value: bson.M{"downloadnumber": 1}},
-	})
-	if err != nil {
-		return logger.ErrDbWrite
-	}
-
-	r.L.Info(tokenData.Username + " incremented the download counter of " + romId)
-
-	return nil
 }
 
 // get a list of rom and version uploaded by the user

@@ -51,38 +51,6 @@ func (r *DbLog) addVersion(c *gin.Context) {
 	api.ApiRes(c, err, r.L, gin.H{"res": "added the version", "id": romId})
 }
 
-// get the data of a rom
-func (r *DbLog) getRom(c *gin.Context) {
-	c.Header("route", "get rom")
-
-	// get the params from the uri
-	codename := c.Param("codename")
-	androidVersion, _ := strconv.ParseFloat(c.Param("android"), 32)
-	romName := c.Param("romname")
-
-	// get the rom data
-	rom, err := r.getRomDB(codename, float32(androidVersion), romName)
-
-	// return the data of the rom
-	api.ApiRes(c, err, r.L, rom)
-
-}
-
-// get the data of a rom from the id
-func (r *DbLog) getRomById(c *gin.Context) {
-	c.Header("route", "get rom by id")
-
-	// get the params from the uri
-	romId := c.Param("id")
-
-	// get the rom data
-	rom, err := r.getRomByIdDB(romId)
-
-	// return the data of the rom
-	api.ApiRes(c, err, r.L, rom)
-
-}
-
 // return a list of unverified rom
 func (r *DbLog) getUnverifiedRom(c *gin.Context) {
 	c.Header("route", "get unverified rom")
@@ -98,6 +66,23 @@ func (r *DbLog) getUnverifiedRom(c *gin.Context) {
 
 	// return an unverified rom list
 	api.ApiRes(c, err, r.L, gin.H{"list": roms})
+}
+
+// return a list of unverified version
+func (r *DbLog) getUnverifiedVersion(c *gin.Context) {
+	c.Header("route", "get unverified version")
+
+	// get the token from the header
+	token := c.GetHeader("token")
+
+	// get the list of unverified version
+	versions, err := r.getUnverifiedVersionDB(token)
+	if versions == nil {
+		versions = []*VersionModel{}
+	}
+
+	// return an unverified version list
+	api.ApiRes(c, err, r.L, gin.H{"list": versions})
 }
 
 // approve a rom
@@ -118,6 +103,24 @@ func (r *DbLog) approveRom(c *gin.Context) {
 
 }
 
+// approve a rom
+func (r *DbLog) approveVersion(c *gin.Context) {
+	c.Header("route", "approve version")
+
+	// get the versionId from the uri
+	versionId := c.Param("versionid")
+
+	// get the token from the header
+	token := c.GetHeader("token")
+
+	// approve the version
+	err := r.approveVersionDB(versionId, token)
+
+	// return a message
+	api.ApiRes(c, err, r.L, gin.H{"res": "verified the version"})
+
+}
+
 // get a list of verified rom
 func (r *DbLog) getRomList(c *gin.Context) {
 	c.Header("route", "get rom list")
@@ -126,9 +129,10 @@ func (r *DbLog) getRomList(c *gin.Context) {
 	codename := c.Param("codename")
 	androidVersion, _ := strconv.ParseFloat(c.Param("android"), 32)
 	orderby := c.Param("orderby")
+	romName := c.GetHeader("romname")
 
 	// get the rom list
-	roms, err := r.getRomListDB(codename, float32(androidVersion), orderby)
+	roms, err := r.getRomListDB(codename, float32(androidVersion), orderby, romName)
 	if roms == nil {
 		roms = []*RomModel{}
 	}
@@ -152,39 +156,6 @@ func (r *DbLog) getVersionList(c *gin.Context) {
 	}
 	// return the version list
 	api.ApiRes(c, err, r.L, gin.H{"list": versions})
-
-}
-
-// get a list of device codename
-func (r *DbLog) searchRomName(c *gin.Context) {
-	c.Header("route", "search rom name")
-
-	// get the rom name from the uri
-	romName := c.Param("name")
-
-	// get the list of rom name
-	nameList, err := r.searchRomNameDB(romName)
-	if nameList == nil {
-		nameList = []string{}
-	}
-	// return the list of rom name
-	api.ApiRes(c, err, r.L, gin.H{"list": nameList})
-
-}
-
-// get a list of device codename
-func (r *DbLog) incrementDownload(c *gin.Context) {
-	c.Header("route", "increment download")
-
-	// get the rom id from the uri
-	romId := c.Param("id")
-	token := c.GetHeader("token")
-
-	// get the list of rom name
-	err := r.incrementDownloadDB(romId, token)
-
-	// return the list of rom name
-	api.ApiRes(c, err, r.L, gin.H{"res": "incremented the counter"})
 
 }
 

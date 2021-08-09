@@ -65,6 +65,7 @@ services:
             - influxdb
         ports: 
             - 9091:9091
+            - 8080:9094
         environment: 
             - logFile
             - tls
@@ -76,6 +77,7 @@ services:
         volumes: 
             - ./data/log:/app/log
             - ./data/asset:/app/asset
+            - ./web:/app/web
 
     rom-service:
         image: ghcr.io/mp281x/rom-service:latest

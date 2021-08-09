@@ -65,18 +65,19 @@ type EditRomModel struct {
 	Link        []string `bson:"link,omitempty" json:"link,omitempty"`
 }
 type VersionModel struct {
-	Id             primitive.ObjectID `bson:"_id,omitempty" json:"id,omitempty"`
-	RomId          string             `bson:"romid" json:"romid"`
-	Codename       string             `bson:"codename" json:"codename"`
-	Date           time.Time          `bson:"date" json:"date"`
-	Official       bool               `bson:"official" json:"official"`
-	ChangeLog      []string           `bson:"changelog" json:"changelog"`
-	Error          []string           `bson:"error" json:"error"`
-	GappsLink      string             `bson:"gappslink" json:"gappslink"`
-	VanillaLink    string             `bson:"vanillalink" json:"vanillalink"`
-	UploadedBy     string             `bson:"uploadedby" json:"-"`
-	DownloadNumber int                `bson:"downloadnumber" json:"downloadnumber"`
-	RelaseType     string             `bson:"relasetype" json:"relasetype"`
+	Id          primitive.ObjectID `bson:"_id,omitempty" json:"id,omitempty"`
+	RomId       string             `bson:"romid" json:"romid"`
+	Codename    string             `bson:"codename" json:"codename"`
+	Date        time.Time          `bson:"date" json:"date"`
+	Official    bool               `bson:"official" json:"official"`
+	ChangeLog   []string           `bson:"changelog" json:"changelog"`
+	Error       []string           `bson:"error" json:"error"`
+	GappsLink   string             `bson:"gappslink" json:"gappslink"`
+	VanillaLink string             `bson:"vanillalink" json:"vanillalink"`
+	UploadedBy  string             `bson:"uploadedby" json:"-"`
+	RelaseType  string             `bson:"relasetype" json:"relasetype"`
+	Verified    bool               `bson:"verified" json:"verified"`
+	Version     string             `bson:"version" json:"version"`
 }
 
 type EditVersionModel struct {
@@ -95,6 +96,10 @@ func (v *VersionModel) Validate() error {
 		return errors.New("enter the device codename")
 	}
 
+	if v.Version == "" {
+		return errors.New("enter the rom version")
+	}
+
 	v.Codename = strings.ToLower(v.Codename)
 
 	if len(v.ChangeLog) == 0 {
@@ -110,11 +115,11 @@ func (v *VersionModel) Validate() error {
 		return errors.New("enter a download link")
 	}
 
-	v.DownloadNumber = 0
-
 	if v.RelaseType == "" {
 		return errors.New("enter the relase type")
 	}
+
+	v.Verified = false
 
 	return nil
 }

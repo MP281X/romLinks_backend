@@ -12,3 +12,4 @@ asset
 docker/*
 server
 data
+web
