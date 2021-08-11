@@ -8,6 +8,7 @@ import (
 	"github.com/MP281X/romLinks_backend/packages/api"
 	"github.com/MP281X/romLinks_backend/packages/db"
 	"github.com/MP281X/romLinks_backend/packages/logger"
+	textsearch "github.com/MP281X/romLinks_backend/packages/textSearch"
 	romhandler "github.com/MP281X/romLinks_backend/services/romService/romHandler"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -46,7 +47,17 @@ func main() {
 		DbR: db.Collection("rom"),
 		DbV: db.Collection("version"),
 		DbC: db.Collection("comment"),
+		RN:  textsearch.TextList{T: []string{}},
 	}
+
+	// get the rom name list
+	err = r.GetRomName()
+	if err != nil {
+		l.Error("unable to get the rom name list")
+		return
+	}
+	l.Info("initialized the rom name list")
+
 	// init the api with the routes
 	api.InitApi(r.RomRoutes, ":9092", "romService", l)
 

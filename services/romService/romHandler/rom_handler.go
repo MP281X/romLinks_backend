@@ -3,10 +3,10 @@ package romhandler
 import (
 	"encoding/json"
 	"io/ioutil"
-	"strconv"
 
 	"github.com/MP281X/romLinks_backend/packages/api"
 	"github.com/MP281X/romLinks_backend/packages/logger"
+	textsearch "github.com/MP281X/romLinks_backend/packages/textSearch"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/mongo"
 )
@@ -17,6 +17,7 @@ type DbLog struct {
 	DbR *mongo.Collection
 	DbV *mongo.Collection
 	DbC *mongo.Collection
+	RN  textsearch.TextList
 }
 
 // add a new rom
@@ -125,14 +126,13 @@ func (r *DbLog) approveVersion(c *gin.Context) {
 func (r *DbLog) getRomList(c *gin.Context) {
 	c.Header("route", "get rom list")
 
-	// get the params from the uri
-	codename := c.Param("codename")
-	androidVersion, _ := strconv.ParseFloat(c.Param("android"), 32)
-	orderby := c.Param("orderby")
-	romName := c.GetHeader("romname")
+	//decode the body
+	var x *FilterRomModel
+	data, _ := ioutil.ReadAll(c.Request.Body)
+	json.Unmarshal(data, &x)
 
 	// get the rom list
-	roms, err := r.getRomListDB(codename, float32(androidVersion), orderby, romName)
+	roms, err := r.getRomListDB(x)
 	if roms == nil {
 		roms = []*RomModel{}
 	}
@@ -292,4 +292,13 @@ func (r *DbLog) removeRom(c *gin.Context) {
 	// return a message
 	api.ApiRes(c, err, r.L, gin.H{"res": "removed the rom"})
 
+}
+
+// search a rom name
+func (r *DbLog) searchRom(c *gin.Context) {
+	c.Header("route", "search rom")
+
+	res, err := r.RN.SearchValue(c.Param("romname"))
+
+	api.ApiRes(c, err, r.L, gin.H{"list": res})
 }

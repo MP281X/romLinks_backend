@@ -8,6 +8,7 @@ import (
 	"github.com/MP281X/romLinks_backend/packages/api"
 	"github.com/MP281X/romLinks_backend/packages/db"
 	"github.com/MP281X/romLinks_backend/packages/logger"
+	textsearch "github.com/MP281X/romLinks_backend/packages/textSearch"
 	devicehandler "github.com/MP281X/romLinks_backend/services/deviceService/deviceHandler"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -44,7 +45,14 @@ func main() {
 	r := &devicehandler.DbLog{
 		L:  l,
 		Db: db.Collection("device"),
+		DN: textsearch.TextList{T: []string{}},
 	}
+
+	err = r.GetDeviceName()
+	if err != nil {
+		l.Error("unable to get the device codename list")
+	}
+
 	// init the api with the routes
 	api.InitApi(r.DeviceRoutes, ":9090", "deviceService", l)
 

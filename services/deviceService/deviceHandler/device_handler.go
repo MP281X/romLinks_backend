@@ -7,6 +7,7 @@ import (
 
 	"github.com/MP281X/romLinks_backend/packages/api"
 	"github.com/MP281X/romLinks_backend/packages/logger"
+	textsearch "github.com/MP281X/romLinks_backend/packages/textSearch"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/mongo"
 )
@@ -15,6 +16,7 @@ import (
 type DbLog struct {
 	L  *logger.LogStruct
 	Db *mongo.Collection
+	DN textsearch.TextList
 }
 
 // add a new device
@@ -31,6 +33,8 @@ func (r *DbLog) addDevice(c *gin.Context) {
 
 	// add a device to the db
 	err := r.addDeviceDB(device, token)
+
+	r.DN.AddValue(device.Codename)
 
 	// return a message
 	api.ApiRes(c, err, r.L, gin.H{"res": "added the device info", "codename": strings.ToLower(device.Codename)})
@@ -72,14 +76,11 @@ func (r *DbLog) editDevice(c *gin.Context) {
 func (r *DbLog) searchDeviceName(c *gin.Context) {
 	c.Header("route", "search device")
 
-	// get the device name from the uri
-	romName := c.Param("name")
-
 	// get the list of device name
-	nameList, err := r.searchDeviceNameDB(romName)
+	res, err := r.DN.SearchValue(c.Param("name"))
 
 	// return the list of device name
-	api.ApiRes(c, err, r.L, gin.H{"list": nameList})
+	api.ApiRes(c, err, r.L, gin.H{"list": res})
 
 }
 

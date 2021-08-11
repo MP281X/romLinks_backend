@@ -13,9 +13,10 @@ func (r *DbLog) RomRoutes(app *gin.Engine) {
 	app.POST("/rom", r.addRom)
 	app.GET("/verifyrom", r.getUnverifiedRom)
 	app.PUT("/verifyrom/:romid", r.approveRom)
-	app.GET("/romlist/:codename/:android/*orderby", r.getRomList)
+	app.GET("/romlist", r.getRomList)
 	app.PUT("/rom/:romid", r.editRomData)
 	app.DELETE("/rom/:romid", r.removeRom)
+	app.GET("/searchRom/:romname", r.searchRom)
 
 	// version routes
 	app.POST("/version", r.addVersion)

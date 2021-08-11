@@ -23,6 +23,14 @@ type RomModel struct {
 	UploadedBy     string             `bson:"uploadedby" json:"uploadedby"`
 }
 
+type FilterRomModel struct {
+	RomName        string  `bson:"romname,omitempty" json:"romname,omitempty"`
+	AndroidVersion float32 `bson:"androidversion,omitempty" json:"androidversion,omitempty"`
+	Verified       bool    `bson:"verified,omitempty" json:"verified,omitempty"`
+	Codename       string  `bson:"codename,omitempty" json:"codename,omitempty"`
+	OrderBy        string  `bson:"-" json:"orderby,omitempty"`
+}
+
 func (rom *RomModel) Validate() error {
 	if rom.RomName == "" {
 		return errors.New("enter the rom name")

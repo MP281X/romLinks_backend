@@ -16,34 +16,34 @@ romService:
 
 # build all the docker-image, push them to the registry and restart the service
 docker:
-	make docker-close
-	make docker-build
-	make docker-run
-	make docker-push
+	make stop
+	make build
+	make run
+	make push
 	docker image prune 
 
 # run all the services
-docker-run:
+run:
 	docker compose -f docker-compose.yaml up -d
 
 # close all the services
-docker-close:
+stop:
 	docker compose -f docker-compose.yaml down
 
 # build all the image
-docker-build:
+build:
 	sudo docker build -f ./services/userService/Dockerfile -t ghcr.io/mp281x/user-service:latest .
 	sudo docker build -f ./services/romService/Dockerfile -t ghcr.io/mp281x/rom-service:latest .
 	sudo docker build -f ./services/fileStorageService/Dockerfile -t ghcr.io/mp281x/file_storage-service:latest .
 	sudo docker build -f ./services/deviceService/Dockerfile -t ghcr.io/mp281x/device-service:latest .
 
 # push all the image to the github registry
-docker-push:
+push:
 	docker push ghcr.io/mp281x/user-service:latest
 	docker push ghcr.io/mp281x/rom-service:latest
 	docker push ghcr.io/mp281x/file_storage-service:latest
 	docker push ghcr.io/mp281x/device-service:latest
 
 # clear data
-docker-clear:
+clear-data:
 	sudo rm -r ./data

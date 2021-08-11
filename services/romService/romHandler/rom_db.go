@@ -42,6 +42,9 @@ func (r *DbLog) addRomDB(rom *RomModel, token string) (string, error) {
 		return "", logger.ErrDbWrite
 	}
 
+	// add the rom name to the rom name slice
+	r.RN.AddValue(rom.RomName)
+
 	// get the rom id
 	userId := fmt.Sprintf("%v", id.InsertedID)
 	userId = userId[10 : len(userId)-2]
@@ -234,46 +237,25 @@ func (r *DbLog) approveVersionDB(versionId string, token string) error {
 }
 
 // get a list of rom
-func (r *DbLog) getRomListDB(codename string, androidVersion float32, orderby string, romName string) ([]*RomModel, error) {
+func (r *DbLog) getRomListDB(filter *FilterRomModel) ([]*RomModel, error) {
 
-	codename = strings.ToLower(codename)
+	filter.Codename = strings.ToLower(filter.Codename)
 
 	// decode the rom list there
 	var romsList []*RomModel
 
+	filter.Verified = true
+
 	findOptions := options.Find()
-	if orderby != "/" {
-		findOptions.SetSort(bson.M{orderby[1:]: -1})
+	if filter.OrderBy != "" {
+		findOptions.SetSort(bson.M{filter.OrderBy: -1})
 	}
 
 	var roms *mongo.Cursor
 	var err error
-	print(romName)
-	if romName == "" {
 
-		// search the rom in the db
-		roms, err = r.DbR.Find(context.TODO(), bson.M{
-			"$and": []bson.M{
-				{"verified": true},
-				{"androidversion": androidVersion},
-				{"codename": codename},
-			},
-		}, findOptions)
-
-	} else {
-
-		// search the rom in the db
-		roms, err = r.DbR.Find(context.TODO(), bson.M{
-			"$and": []bson.M{
-				{"verified": true},
-				{"androidversion": androidVersion},
-				{"codename": codename},
-			},
-			"$text": bson.M{"$search": romName},
-		}, findOptions)
-
-	}
-
+	// search the rom in the db
+	roms, err = r.DbR.Find(context.TODO(), filter, findOptions)
 	if err != nil {
 		return nil, logger.ErrDbRead
 	}
@@ -365,6 +347,7 @@ func (r *DbLog) getUploadedDB(token string) (*RomVersionModel, error) {
 	return uploaded, nil
 }
 
+// add a review for a rom
 func (r *DbLog) addReviewDB(token string, comment *CommentModel) error {
 
 	// validate the comment data
@@ -408,6 +391,7 @@ func (r *DbLog) addReviewDB(token string, comment *CommentModel) error {
 	return nil
 }
 
+// get a list of review for a rom
 func (r *DbLog) getReviewDB(romId string) ([]*CommentModel, error) {
 	var commentList []*CommentModel
 
@@ -578,7 +562,34 @@ func (r *DbLog) removeRomDB(token string, romId string) error {
 		return logger.ErrDbWrite
 	}
 
+	// remove the rom name from the rom name slice
+	r.RN.RemoveValue(data.RomName)
+
 	r.L.Info(tokenData.Username + " deleted a rom: " + romId)
+
+	return nil
+}
+
+// get a list of romName
+func (r *DbLog) GetRomName() error {
+
+	// search the rom in the db
+	cursor, err := r.DbR.Find(context.TODO(), bson.M{}, nil)
+	if err != nil {
+		return logger.ErrDbRead
+	}
+
+	defer cursor.Close(context.TODO())
+
+	// add the rom name to the rom name slice
+	for cursor.Next(context.TODO()) {
+		var val bson.M
+
+		if err = cursor.Decode(&val); err != nil {
+			return logger.ErrDbRead
+		}
+		r.RN.AddValue(val["romname"].(string))
+	}
 
 	return nil
 }

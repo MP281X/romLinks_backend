@@ -1,15 +1,6 @@
-# Binaries for programs and plugins
-*.exe
-*.exe~
-
-*.test
-
 *.env
-
-build
 log
 asset
-docker/*
 server
 data
 web
