@@ -82,7 +82,7 @@ type VersionModel struct {
 	Error       []string           `bson:"error" json:"error"`
 	GappsLink   string             `bson:"gappslink" json:"gappslink"`
 	VanillaLink string             `bson:"vanillalink" json:"vanillalink"`
-	UploadedBy  string             `bson:"uploadedby" json:"-"`
+	UploadedBy  string             `bson:"uploadedby" json:"uploadedby"`
 	RelaseType  string             `bson:"relasetype" json:"relasetype"`
 	Verified    bool               `bson:"verified" json:"verified"`
 	Version     string             `bson:"version" json:"version"`

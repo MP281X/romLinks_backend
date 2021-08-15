@@ -80,3 +80,13 @@ func (r *DbLog) editUserPerm(c *gin.Context) {
 	// return a message
 	api.ApiRes(c, err, r.L, gin.H{"res": "edited the permission", "username": username})
 }
+
+func (r *DbLog) saveRom(c *gin.Context) {
+
+	romId := c.Param("romid")
+	token := c.GetHeader("token")
+
+	err := r.saveRomDB(romId, token)
+
+	api.ApiRes(c, err, r.L, gin.H{"res": "saved the rom"})
+}

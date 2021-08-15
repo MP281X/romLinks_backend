@@ -108,7 +108,7 @@ func (r *DbLog) logInDB(username string, password string) (string, error) {
 	}
 
 	// generate the jwt
-	token, err := encryption.GenerateJwt(user.ID.Hex(), &encryption.TokenData{Verified: user.Dev.Verified, Moderator: user.Moderator, Username: username})
+	token, err := encryption.GenerateJwt(user.ID.Hex(), &encryption.TokenData{Verified: user.Verified, Moderator: user.Moderator, Username: username})
 	if err != nil {
 		return "", err
 	}
@@ -132,7 +132,7 @@ func (r *DbLog) userPermDB(token string, username string, perm string, value boo
 	}
 
 	// check if the perm to modify is correct
-	if perm == "ban" || perm == "dev.verified" || perm == "moderator" {
+	if perm == "ban" || perm == "verified" || perm == "moderator" {
 
 		// edit the user perm
 		_, err := r.Db.UpdateOne(context.TODO(), bson.M{"username": strings.ToLower(username)}, bson.D{
@@ -149,4 +149,26 @@ func (r *DbLog) userPermDB(token string, username string, perm string, value boo
 
 	return logger.ErrDbEdit
 
+}
+
+// save a rom for a user
+func (r *DbLog) saveRomDB(romId string, token string) error {
+
+	// get the token data
+	tokenData, err := encryption.GetTokenData(token)
+	if err != nil {
+		return err
+	}
+
+	// add the rom id to the user saved rom
+	_, err = r.Db.UpdateOne(context.TODO(), bson.M{"username": tokenData.Username}, bson.D{
+		{Key: "$addToSet", Value: bson.M{"savedRom": romId}},
+	})
+	if err != nil {
+		return logger.ErrDbEdit
+	}
+
+	r.L.Info(tokenData.Username + " saved " + romId)
+
+	return nil
 }

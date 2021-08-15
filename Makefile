@@ -24,6 +24,8 @@ docker:
 
 # run all the services
 run:
+	mkdir ./data/grafana -p
+	sudo chown -R 472:472 ./data/grafana
 	docker compose -f docker-compose.yaml up -d
 
 # close all the services

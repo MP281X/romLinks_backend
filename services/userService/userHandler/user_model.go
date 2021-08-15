@@ -13,14 +13,9 @@ type UserModel struct {
 	Email     string             `bson:"email" json:"email"`
 	Password  string             `bson:"password" json:"password,omitempty"`
 	SavedRom  []string           `bson:"savedRom" json:"savedRom"`
-	Dev       *DevModel          `bson:"dev" json:"dev"`
+	Verified  bool               `bson:"verified" json:"verified"`
 	Moderator bool               `bson:"moderator" json:"moderator"`
 	Ban       bool               `bson:"ban" json:"ban"`
-}
-
-type DevModel struct {
-	Link     []string `bson:"link" json:"link"`
-	Verified bool     `bson:"verified" json:"verified"`
 }
 
 //validate the user data
@@ -44,14 +39,7 @@ func (user *UserModel) Validate() error {
 	user.SavedRom = []string{}
 	user.Moderator = false
 	user.Ban = false
-	user.Dev = &DevModel{
-		Verified: false,
-	}
-
-	// prevent null error
-	if len(user.Dev.Link) == 0 {
-		user.Dev.Link = []string{}
-	}
+	user.Verified = false
 
 	return nil
 }

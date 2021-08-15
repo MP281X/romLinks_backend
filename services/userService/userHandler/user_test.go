@@ -13,12 +13,10 @@ import (
 func TestValidation(t *testing.T) {
 	// null input data
 	user := &UserModel{
-		Username: "",
-		Email:    "",
-		Password: "",
-		Dev: &DevModel{
-			Verified: true,
-		},
+		Username:  "",
+		Email:     "",
+		Password:  "",
+		Verified:  true,
 		Moderator: true,
 		Ban:       true,
 	}
@@ -47,7 +45,7 @@ func TestValidation(t *testing.T) {
 	}
 
 	// invalid user perm
-	if user.Moderator || user.Dev.Verified || user.Ban {
+	if user.Moderator || user.Verified || user.Ban {
 		t.Error("the moderator/verified/ban field has to be set to false ")
 	}
 }
@@ -65,12 +63,10 @@ func TestDBReq(t *testing.T) {
 
 	// add the user
 	token1, err := r.signUpDB(&UserModel{
-		Username: "testUsername",
-		Email:    "test@email.com",
-		Password: "TestPassword",
-		Dev: &DevModel{
-			Verified: true,
-		},
+		Username:  "testUsername",
+		Email:     "test@email.com",
+		Password:  "TestPassword",
+		Verified:  true,
 		Moderator: true,
 		Ban:       true,
 	})
@@ -116,12 +112,10 @@ func TestUserPerm(t *testing.T) {
 
 	// add the user
 	token2, err := r.signUpDB(&UserModel{
-		Username: "testUsername",
-		Email:    "test@email.com",
-		Password: "TestPassword",
-		Dev: &DevModel{
-			Verified: true,
-		},
+		Username:  "testUsername",
+		Email:     "test@email.com",
+		Password:  "TestPassword",
+		Verified:  true,
 		Moderator: true,
 		Ban:       true,
 	})

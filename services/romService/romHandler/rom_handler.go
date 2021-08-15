@@ -141,7 +141,7 @@ func (r *DbLog) getRomList(c *gin.Context) {
 
 }
 
-// get a list of verified rom
+// get a list of verified version
 func (r *DbLog) getVersionList(c *gin.Context) {
 	c.Header("route", "get version list")
 
@@ -156,6 +156,28 @@ func (r *DbLog) getVersionList(c *gin.Context) {
 	}
 	// return the version list
 	api.ApiRes(c, err, r.L, gin.H{"list": versions})
+
+}
+
+// get a list of verified rom
+func (r *DbLog) getRomById(c *gin.Context) {
+	c.Header("route", "get rom list by id")
+
+	// decode the body
+	type romList struct {
+		Id []string `json:"romid"`
+	}
+	var x romList
+	data, _ := ioutil.ReadAll(c.Request.Body)
+	json.Unmarshal(data, &x)
+
+	// get the rom list
+	roms, err := r.getRomByIdDB(x.Id)
+	if roms == nil {
+		roms = []*RomModel{}
+	}
+	// return the version list
+	api.ApiRes(c, err, r.L, gin.H{"list": roms})
 
 }
 

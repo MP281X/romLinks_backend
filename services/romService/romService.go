@@ -80,6 +80,27 @@ func setDbIndex(db *mongo.Database) error {
 		Options: options.Index().SetUnique(true).SetName("unique rom"),
 	}
 
+	index3 := mongo.IndexModel{
+		Keys: bson.D{
+			{"codename", 1},
+			{"username", 1},
+			{"romid", 1},
+		},
+		Options: options.Index().SetUnique(true).SetName("unique comment"),
+	}
+
+	index4 := mongo.IndexModel{
+		Keys: bson.D{
+			{"romid", 1},
+			{"codename", 1},
+			{"date", 1},
+			{"version", 1},
+			{"gappslink", 1},
+			{"vanillalink", 1},
+		},
+		Options: options.Index().SetUnique(true).SetName("unique version"),
+	}
+
 	// add the index to the db
 	_, err := db.Collection("rom").Indexes().CreateOne(context.TODO(), index1)
 	if err != nil {
@@ -87,6 +108,16 @@ func setDbIndex(db *mongo.Database) error {
 	}
 
 	_, err = db.Collection("rom").Indexes().CreateOne(context.TODO(), index2)
+	if err != nil {
+		return errors.New("unable to add the index to the db")
+	}
+
+	_, err = db.Collection("comment").Indexes().CreateOne(context.TODO(), index3)
+	if err != nil {
+		return errors.New("unable to add the index to the db")
+	}
+
+	_, err = db.Collection("version").Indexes().CreateOne(context.TODO(), index4)
 	if err != nil {
 		return errors.New("unable to add the index to the db")
 	}

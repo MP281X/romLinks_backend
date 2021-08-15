@@ -56,40 +56,6 @@ func (r *DbLog) getDeviceDB(codename string) (*DeviceModel, error) {
 	return &device, nil
 }
 
-// edit the info of a device
-func (r *DbLog) editDeviceDB(codename string, device *EditDeviceModel, token string) (string, error) {
-
-	// get the token data
-	tokenData, err := encryption.GetTokenData(token)
-	if err != nil {
-		return "", err
-	}
-
-	// check if the user who modify is the same who uploaded the rom data
-	var x DeviceModel
-	err = r.Db.FindOne(context.TODO(), bson.M{"codename": codename}).Decode(&x)
-	if err != nil {
-		return "", logger.ErrUnauthorized
-	}
-
-	// check if the user is authorized
-	if !tokenData.Moderator && tokenData.Username != x.CreatedBy {
-		return "", logger.ErrUnauthorized
-	}
-
-	// replace the old info with the new one
-	_, err = r.Db.UpdateOne(context.TODO(), bson.M{"codename": codename}, bson.M{
-		"$set": device,
-	})
-	if err != nil {
-		return "", logger.ErrDbEdit
-	}
-
-	r.L.Info(tokenData.Username + " edited the info of " + x.Codename)
-
-	return codename, nil
-}
-
 // get a list of devices uploaded by the user
 func (r *DbLog) getUploadedDB(token string) ([]*DeviceModel, error) {
 

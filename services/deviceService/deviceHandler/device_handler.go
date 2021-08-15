@@ -51,27 +51,6 @@ func (r *DbLog) getDevice(c *gin.Context) {
 	api.ApiRes(c, err, r.L, device)
 }
 
-// edit the device info
-func (r *DbLog) editDevice(c *gin.Context) {
-	c.Header("route", "edit device")
-
-	// decode the body
-	var device *EditDeviceModel
-	data, _ := ioutil.ReadAll(c.Request.Body)
-	json.Unmarshal(data, &device)
-
-	// get the token from the header
-	token := c.GetHeader("token")
-	codename := c.Param("codename")
-
-	// edit the device info
-	codename, err := r.editDeviceDB(codename, device, token)
-
-	// return a message
-	api.ApiRes(c, err, r.L, gin.H{"res": "edited the device info", "codename": codename})
-
-}
-
 // get a list of device codename
 func (r *DbLog) searchDeviceName(c *gin.Context) {
 	c.Header("route", "search device")

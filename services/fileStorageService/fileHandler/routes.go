@@ -6,7 +6,7 @@ import (
 
 // file routes
 func (l *Log) FileStorageRoutes(app *gin.Engine) {
-	app.GET("/fileStorageService", l.root)
+	app.GET("/", l.root)
 	app.GET("/image/:category/:name", l.getImage)
 	app.POST("/image/:category", l.saveImage)
 	app.POST("/profile", l.saveProfilePicture)

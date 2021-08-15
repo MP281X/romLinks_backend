@@ -1,6 +1,3 @@
 *.env
-log
-asset
-server
 data
-web
+Makefile_server

@@ -271,6 +271,33 @@ func (r *DbLog) getRomListDB(filter *FilterRomModel) ([]*RomModel, error) {
 	return romsList, nil
 }
 
+// get a list of rom by a list of id
+func (r *DbLog) getRomByIdDB(rom []string) ([]*RomModel, error) {
+
+	// decode the rom list there
+	var romsList []*RomModel
+
+	// convert the list of string in a list of object id
+	var romId []primitive.ObjectID = []primitive.ObjectID{}
+	for _, id := range rom {
+		x, _ := primitive.ObjectIDFromHex(id)
+		romId = append(romId, x)
+	}
+
+	// get the list of rom from the db
+	roms, err := r.DbR.Find(context.TODO(), bson.D{{Key: "_id", Value: bson.M{"$in": romId}}}, options.Find().SetSort(bson.D{}).SetLimit(20))
+	if err != nil {
+		return nil, logger.ErrDbRead
+	}
+
+	// interate every result and add them to the romList slice
+	if err = roms.All(context.TODO(), &romsList); err != nil {
+		return nil, logger.ErrDbRead
+	}
+
+	return romsList, nil
+}
+
 // get a list of version
 func (r *DbLog) getVersionListDB(codename string, romId string) ([]*VersionModel, error) {
 

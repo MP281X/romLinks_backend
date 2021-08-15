@@ -14,8 +14,6 @@ type Log struct {
 	L *logger.LogStruct
 }
 
-//TODO: improve
-
 func (l *Log) getImage(c *gin.Context) {
 	c.Header("route", "get image")
 
