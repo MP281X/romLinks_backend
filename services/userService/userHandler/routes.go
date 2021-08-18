@@ -11,7 +11,7 @@ func (r *DbLog) UserRoutes(app *gin.Engine) {
 	app.POST("/user", r.signUp)
 	app.GET("/user", r.logIn)
 	app.GET("/userData", r.getUser)
-	app.PUT("/saveRom", r.saveRom)
+	app.PUT("/saveRom/:romid", r.saveRom)
 }
 
 // root route

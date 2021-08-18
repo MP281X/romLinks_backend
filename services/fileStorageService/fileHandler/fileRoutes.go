@@ -2,6 +2,7 @@ package filehandler
 
 import (
 	"os"
+	"os/exec"
 	"strconv"
 	"strings"
 
@@ -14,6 +15,7 @@ type Log struct {
 	L *logger.LogStruct
 }
 
+// return a image
 func (l *Log) getImage(c *gin.Context) {
 	c.Header("route", "get image")
 
@@ -36,6 +38,7 @@ func (l *Log) getImage(c *gin.Context) {
 	c.File(path)
 }
 
+// save a image
 func (l *Log) saveImage(c *gin.Context) {
 	c.Header("route", "save image")
 
@@ -114,6 +117,12 @@ func (l *Log) saveImage(c *gin.Context) {
 		return
 	}
 
+	if format == "png" {
+		go exec.Command("optipng " + filePath).Run()
+	} else if format == "jpg" || format == "jpeg" {
+		go exec.Command("jpegoptim " + filePath).Run()
+	}
+
 	// send the file link
 	c.JSON(200, gin.H{
 		"imgLink": filePath[8:],
@@ -149,9 +158,8 @@ func (l *Log) saveProfilePicture(c *gin.Context) {
 	// save the file
 	if err := c.SaveUploadedFile(file, filePath); err != nil {
 
-		c.JSON(500, gin.H{
-			"msg": "unable to save the image",
-		})
+		c.JSON(500, gin.H{"msg": "unable to save the image"})
+
 		l.L.Warning("unable to save the image")
 		return
 	}
@@ -162,4 +170,44 @@ func (l *Log) saveProfilePicture(c *gin.Context) {
 	c.JSON(200, gin.H{
 		"imgLink": "profile/" + tokenData.Username,
 	})
+}
+
+// delete a image
+func (l *Log) deleteImage(c *gin.Context) {
+	c.Header("route", "delete image")
+
+	// get the params from the url
+	category := strings.ToLower(c.Param("category"))
+	fileName := strings.ToLower(c.Param("name"))
+
+	// get the token data
+	token := c.GetHeader("token")
+	tokenData, err := encryption.GetTokenData(token)
+	if err != nil {
+		c.JSON(500, gin.H{
+			"err": logger.ErrUnauthorized,
+		})
+		return
+	}
+
+	i := strings.Index(fileName, "_")
+	fileName = fileName[i+1:]
+
+	// build the path
+	path := "./asset/" + category + "/" + tokenData.Username + fileName
+
+	// check if the file exist
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		l.L.Warning("image not found")
+		c.File("")
+		l.L.Warning("image not found")
+		return
+	}
+
+	os.Remove(path)
+
+	l.L.Info(tokenData.Username + " deleted " + fileName)
+
+	// return the file
+	c.JSON(200, gin.H{"res": "deleted the image"})
 }

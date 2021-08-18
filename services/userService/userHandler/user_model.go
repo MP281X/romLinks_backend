@@ -26,6 +26,10 @@ func (user *UserModel) Validate() error {
 		return logger.ErrInvUsername
 	}
 
+	if strings.Contains(user.Username, "_") {
+		return logger.ErrInvUsername
+	}
+
 	// validate email
 	if user.Email == "" || !strings.Contains(user.Email, "@") || len(user.Email) < 10 {
 		return logger.ErrInvEmail

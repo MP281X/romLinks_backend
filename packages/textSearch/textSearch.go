@@ -11,6 +11,9 @@ type TextList struct {
 
 // add a value to the slice
 func (t *TextList) AddValue(value string) error {
+
+	value = strings.ToLower(value)
+
 	for _, val := range t.T {
 		if val == value {
 			return errors.New("value already exist")
@@ -23,6 +26,9 @@ func (t *TextList) AddValue(value string) error {
 
 // remove a value from the slice
 func (t *TextList) RemoveValue(value string) error {
+
+	value = strings.ToLower(value)
+
 	for i, val := range t.T {
 		if val == value {
 			t.T[i] = t.T[len(t.T)-1]
@@ -37,6 +43,9 @@ func (t *TextList) RemoveValue(value string) error {
 
 // search a value in the slice
 func (t *TextList) SearchValue(value string) ([]string, error) {
+
+	value = strings.ToLower(value)
+
 	var res []string
 
 	for _, val := range t.T {
