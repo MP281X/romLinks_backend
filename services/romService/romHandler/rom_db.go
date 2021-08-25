@@ -2,6 +2,7 @@ package romhandler
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"strings"
 
@@ -478,46 +479,6 @@ func (r *DbLog) editRomDataDB(romData *EditRomModel, token string, romId string)
 	return nil
 }
 
-// edit the data of a version
-func (r *DbLog) editVersionDataDB(versionData *EditVersionModel, token string, versionId string) error {
-
-	versionId = strings.ToLower(versionId)
-	var data VersionModel
-
-	// convert the rom id in a object id
-	id, _ := primitive.ObjectIDFromHex(versionId)
-
-	// check if the token is valid
-	tokenData, err := encryption.GetTokenData(token)
-	if err != nil {
-		return err
-	}
-
-	// get the data of the rom to edit
-	err = r.DbV.FindOne(context.TODO(), bson.M{"_id": id}).Decode(&data)
-	if err != nil {
-		return logger.ErrDbRead
-	}
-
-	// check if the user has the permission
-	if !tokenData.Moderator && tokenData.Username != data.UploadedBy {
-		return logger.ErrUnauthorized
-	}
-
-	// set true the verified filed
-	_, err = r.DbV.UpdateOne(context.TODO(), bson.M{"_id": id}, bson.D{
-		{Key: "$set", Value: versionData},
-	})
-
-	if err != nil {
-		return logger.ErrDbWrite
-	}
-
-	r.L.Info(tokenData.Username + " edited the data of a version: " + versionId)
-
-	return nil
-}
-
 // delete a version
 func (r *DbLog) removeVersionDB(token string, versionId string) error {
 
@@ -586,7 +547,7 @@ func (r *DbLog) removeRomDB(token string, romId string) error {
 	_, err = r.DbR.DeleteOne(context.TODO(), bson.M{"_id": id})
 
 	if err != nil {
-		return logger.ErrDbWrite
+		return logger.ErrDbEdit
 	}
 
 	// remove the rom name from the rom name slice
@@ -619,4 +580,80 @@ func (r *DbLog) GetRomName() error {
 	}
 
 	return nil
+}
+
+// request a rom
+func (r *DbLog) requestRomDB(req RequestModel) error {
+
+	if req.Codename == "" {
+		return errors.New("enter the device codename")
+	}
+
+	req.RomName = strings.ToLower(req.RomName)
+	req.Codename = strings.ToLower(req.Codename)
+
+	_, err := r.DbReq.InsertOne(context.TODO(), req, nil)
+	if err != nil {
+		return logger.ErrReqAlreadyExist
+	}
+
+	return nil
+}
+
+func (r *DbLog) getRequestDB(token string) ([]*RequestModel, error) {
+	// decode the rom request there
+	var reqList []*RequestModel
+
+	// get the data from the token
+	tokenData, err := encryption.GetTokenData(token)
+	if err != nil {
+		return nil, logger.ErrTokenRead
+	}
+
+	// check if the user is a moderator
+	if !tokenData.Moderator {
+		return nil, logger.ErrUnauthorized
+	}
+
+	// search the rom request in the db
+	cursor, err := r.DbReq.Find(context.TODO(), bson.M{}, options.Find().SetSort(bson.D{}).SetLimit(20))
+	if err != nil {
+		return nil, logger.ErrDbRead
+	}
+
+	defer cursor.Close(context.TODO())
+	if err = cursor.All(context.TODO(), &reqList); err != nil {
+		return nil, logger.ErrDbRead
+	}
+
+	r.L.Info(tokenData.Username + " searched for rom request")
+
+	// return a list of rom request
+	return reqList, nil
+}
+
+func (r *DbLog) deleteRequestDB(reqId string, token string) error {
+	// get the data from the token
+	tokenData, err := encryption.GetTokenData(token)
+	if err != nil {
+		return logger.ErrTokenRead
+	}
+
+	// check if the user is a moderator
+	if !tokenData.Moderator {
+		return logger.ErrUnauthorized
+	}
+
+	// convert the request id in a object id
+	id, _ := primitive.ObjectIDFromHex(reqId)
+
+	r.DbReq.DeleteOne(context.TODO(), bson.M{"_id": id})
+	if err != nil {
+		return logger.ErrDbEdit
+	}
+
+	r.L.Info(tokenData.Username + " deleted a request: " + reqId)
+
+	return nil
+
 }

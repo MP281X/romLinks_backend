@@ -13,11 +13,12 @@ import (
 
 // struct for the logger and the db
 type DbLog struct {
-	L   *logger.LogStruct
-	DbR *mongo.Collection
-	DbV *mongo.Collection
-	DbC *mongo.Collection
-	RN  textsearch.TextList
+	L     *logger.LogStruct
+	DbR   *mongo.Collection
+	DbV   *mongo.Collection
+	DbC   *mongo.Collection
+	DbReq *mongo.Collection
+	RN    textsearch.TextList
 }
 
 // add a new rom
@@ -266,26 +267,6 @@ func (r *DbLog) editRomData(c *gin.Context) {
 
 }
 
-// edit the data of a version
-func (r *DbLog) editVersionData(c *gin.Context) {
-	c.Header("route", "edit version data")
-
-	versionId := c.Param("versionid")
-	token := c.GetHeader("token")
-
-	//decode the body
-	var versionData *EditVersionModel
-	data, _ := ioutil.ReadAll(c.Request.Body)
-	json.Unmarshal(data, &versionData)
-
-	// edit the data of the version
-	err := r.editVersionDataDB(versionData, token, versionId)
-
-	// return a message
-	api.ApiRes(c, err, r.L, gin.H{"res": "edited the version data"})
-
-}
-
 // delete a version
 func (r *DbLog) removeVersion(c *gin.Context) {
 	c.Header("route", "delete version")
@@ -322,5 +303,52 @@ func (r *DbLog) searchRom(c *gin.Context) {
 
 	res, err := r.RN.SearchValue(c.Param("romname"))
 
+	if len(res) == 0 {
+		res = []string{}
+	}
+
 	api.ApiRes(c, err, r.L, gin.H{"list": res})
+
+}
+
+// add a rom request to the request db
+func (r *DbLog) requestRom(c *gin.Context) {
+	c.Header("route", "request rom")
+
+	//decode the body
+	var req *RequestModel
+	data, _ := ioutil.ReadAll(c.Request.Body)
+	json.Unmarshal(data, &req)
+
+	err := r.requestRomDB(*req)
+
+	api.ApiRes(c, err, r.L, gin.H{"res": "requested the rom"})
+
+}
+
+// get a list of rom request
+func (r *DbLog) getRequest(c *gin.Context) {
+	c.Header("route", "get request")
+
+	token := c.GetHeader("token")
+
+	req, err := r.getRequestDB(token)
+
+	if len(req) == 0 {
+		req = []*RequestModel{}
+	}
+
+	api.ApiRes(c, err, r.L, gin.H{"list": req})
+
+}
+
+func (r *DbLog) deleteRequest(c *gin.Context) {
+	c.Header("route", "delete request")
+	token := c.GetHeader("token")
+	reqId := c.Param("id")
+
+	err := r.deleteRequestDB(reqId, token)
+
+	api.ApiRes(c, err, r.L, gin.H{"res": "deleted the request"})
+
 }

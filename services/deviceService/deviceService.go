@@ -64,8 +64,11 @@ func setDbIndex(db *mongo.Database) error {
 	//create the index
 	index := mongo.IndexModel{
 		Keys:    bson.M{"codename": "text"},
-		Options: options.Index().SetUnique(true).SetName("unique_codename"),
+		Options: options.Index().SetUnique(true).SetName("unique codename"),
 	}
+
+	// delete all the current index
+	db.Collection("device").Indexes().DropAll(context.TODO())
 
 	// add the index to the db
 	_, err := db.Collection("device").Indexes().CreateOne(context.TODO(), index)

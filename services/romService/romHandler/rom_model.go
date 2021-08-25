@@ -88,13 +88,6 @@ type VersionModel struct {
 	Version     string             `bson:"version" json:"version"`
 }
 
-type EditVersionModel struct {
-	ChangeLog   []string `bson:"changelog,omitempty" json:"changelog,omitempty"`
-	Error       []string `bson:"error,omitempty" json:"error,omitempty"`
-	GappsLink   string   `bson:"gappslink,omitempty" json:"gappslink,omitempty"`
-	VanillaLink string   `bson:"vanillalink,omitempty" json:"vanillalink,omitempty"`
-}
-
 func (v *VersionModel) Validate() error {
 	if v.RomId == "" {
 		return errors.New("enter the rom id")
@@ -185,4 +178,11 @@ type ReviewModel struct {
 	Stability     float32 `bson:"stability" json:"stability"`
 	Customization float32 `bson:"customization" json:"customization"`
 	ReviewNum     int     `bson:"reviewnum" json:"reviewnum"`
+}
+
+type RequestModel struct {
+	ID             primitive.ObjectID `bson:"_id,omitempty" json:"id"`
+	Codename       string             `bson:"codename,omitempty" json:"codename,omitempty"`
+	AndroidVersion float64            `bson:"androidversion,omitempty" json:"androidversion,omitempty"`
+	RomName        string             `bson:"romname,omitempty" json:"romname,omitempty"`
 }

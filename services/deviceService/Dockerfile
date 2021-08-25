@@ -1,4 +1,4 @@
-FROM golang:1.16.6-alpine3.14 AS builder
+FROM golang:1.17-alpine3.14 AS builder
 WORKDIR /app
 COPY . .
 RUN go build -ldflags="-s -w" -o deviceService ./services/deviceService/deviceService.go

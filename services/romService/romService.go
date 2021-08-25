@@ -43,11 +43,12 @@ func main() {
 
 	// pass the logger and the db collection to the routes handler
 	r := &romhandler.DbLog{
-		L:   l,
-		DbR: db.Collection("rom"),
-		DbV: db.Collection("version"),
-		DbC: db.Collection("comment"),
-		RN:  textsearch.TextList{T: []string{}},
+		L:     l,
+		DbR:   db.Collection("rom"),
+		DbV:   db.Collection("version"),
+		DbC:   db.Collection("comment"),
+		DbReq: db.Collection("request"),
+		RN:    textsearch.TextList{T: []string{}},
 	}
 
 	// get the rom name list
@@ -66,13 +67,7 @@ func main() {
 // set the mongo db index
 func setDbIndex(db *mongo.Database) error {
 
-	//create the index
 	index1 := mongo.IndexModel{
-		Keys:    bson.M{"romname": "text"},
-		Options: options.Index().SetName("rom_name"),
-	}
-
-	index2 := mongo.IndexModel{
 		Keys: bson.D{
 			{"romname", 1},
 			{"androidversion", 1},
@@ -80,16 +75,17 @@ func setDbIndex(db *mongo.Database) error {
 		Options: options.Index().SetUnique(true).SetName("unique rom"),
 	}
 
-	index3 := mongo.IndexModel{
+	index2 := mongo.IndexModel{
 		Keys: bson.D{
 			{"codename", 1},
 			{"username", 1},
 			{"romid", 1},
+			// {"msg", 1},
 		},
 		Options: options.Index().SetUnique(true).SetName("unique comment"),
 	}
 
-	index4 := mongo.IndexModel{
+	index3 := mongo.IndexModel{
 		Keys: bson.D{
 			{"romid", 1},
 			{"codename", 1},
@@ -101,25 +97,40 @@ func setDbIndex(db *mongo.Database) error {
 		Options: options.Index().SetUnique(true).SetName("unique version"),
 	}
 
+	index4 := mongo.IndexModel{
+		Keys: bson.D{
+			{"codename", 1},
+			{"androidversion", 1},
+			{"romname", 1},
+		},
+		Options: options.Index().SetUnique(true).SetName("unique request"),
+	}
+
+	// delete all the current index
+	db.Collection("rom").Indexes().DropAll(context.TODO())
+	db.Collection("comment").Indexes().DropAll(context.TODO())
+	db.Collection("version").Indexes().DropAll(context.TODO())
+	db.Collection("request").Indexes().DropAll(context.TODO())
+
 	// add the index to the db
 	_, err := db.Collection("rom").Indexes().CreateOne(context.TODO(), index1)
 	if err != nil {
-		return errors.New("unable to add the index to the db")
+		return errors.New("index: " + err.Error())
 	}
 
-	_, err = db.Collection("rom").Indexes().CreateOne(context.TODO(), index2)
+	_, err = db.Collection("comment").Indexes().CreateOne(context.TODO(), index2)
 	if err != nil {
-		return errors.New("unable to add the index to the db")
+		return errors.New("index: " + err.Error())
 	}
 
-	_, err = db.Collection("comment").Indexes().CreateOne(context.TODO(), index3)
+	_, err = db.Collection("version").Indexes().CreateOne(context.TODO(), index3)
 	if err != nil {
-		return errors.New("unable to add the index to the db")
+		return errors.New("index: " + err.Error())
 	}
 
-	_, err = db.Collection("version").Indexes().CreateOne(context.TODO(), index4)
+	_, err = db.Collection("request").Indexes().CreateOne(context.TODO(), index4)
 	if err != nil {
-		return errors.New("unable to add the index to the db")
+		return errors.New("index: " + err.Error())
 	}
 
 	return nil

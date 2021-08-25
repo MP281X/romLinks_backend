@@ -1,126 +1,62 @@
-version: '3'
+version: '3.8'
 services: 
-    
-    grafana:
-        image: grafana/grafana:latest
-        container_name: "grafana"
-        depends_on: 
-            - influxdb
-        ports:
-          - 3000:3000
-        volumes: 
-            - ./data/grafana:/var/lib/grafana
-        environment: 
-            - GF_SECURITY_ADMIN_PASSWORD=${grafanaPassword}
-
-    influxdb:
-        image: influxdb:latest
-        container_name: "influxdb"
-        ports: 
-            - 8086:8086
-        environment: 
-            - DOCKER_INFLUXDB_INIT_MODE=setup
-            - DOCKER_INFLUXDB_INIT_USERNAME
-            - DOCKER_INFLUXDB_INIT_PASSWORD
-            - DOCKER_INFLUXDB_INIT_ORG=${influxOrg}
-            - DOCKER_INFLUXDB_INIT_BUCKET=${influxBucket}
-            - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=${influxToken}
-        volumes: 
-            - ./data/influxdb/influx-data:/var/lib/influxdb2
-            - ./data/influxdb/influx-config:/etc/influxdb2
 
     mongodb:
         image: mongo
         container_name: "mongodb"
-        command: [--auth]
-        environment:
-          - MONGO_INITDB_ROOT_USERNAME
-          - MONGO_INITDB_ROOT_PASSWORD
-        ports: 
-            - 27017:27017
-        volumes: 
-            - ./data/mongodb/mongo-data:/data/db
-            - ./data/mongodb/mongo-config:/data/configdb
+        ports: [27017:27017]
+        env_file: .env
+        restart: unless-stopped
+        command: mongod --auth
+        volumes: [./data/mongodb:/data/db]
+
 
     device-service:
         image: ghcr.io/mp281x/device-service:latest
         container_name: "device-service"
-        depends_on: 
-            - mongodb
-            - influxdb
-        ports: 
-            - 9090:9090
-        environment: 
-            - logFile
-            - tls
-            - mongoUri
-            - jwtKey
-            - influxToken
-            - influxOrg
-            - influxBucket
+        ports: [9090:9090]
+        env_file: .env
+        restart: unless-stopped
+        depends_on: [mongodb]
         # volumes: 
-            # - ./data/log:/app/log
-            # - ./certs:/app/certs
+        #     - ./data/log:/app/log
+        #     - ./certs:/app/certs
     
     file_storage-service:
         image: ghcr.io/mp281x/file_storage-service:latest
         container_name: "file_storage-service"
-        depends_on: 
-            - mongodb
-            - influxdb
-        ports: 
-            - 9091:9091
-            - 8080:9094
-        environment: 
-            - logFile
-            - tls
-            - mongoUri
-            - jwtKey
-            - influxToken
-            - influxOrg
-            - influxBucket
+        # ports: [9091:9091, 443:9094, 80:9095]
+        ports: [9091:9091, 8080:9094]
+        env_file: .env
+        restart: unless-stopped
+        depends_on: [mongodb]
         volumes: 
-            # - ./data/log:/app/log
             - ./data/asset:/app/asset
+            # - ./data/log:/app/log
             # - ./web:/app/web
             # - ./certs:/app/certs
 
     rom-service:
         image: ghcr.io/mp281x/rom-service:latest
         container_name: "rom-service"
-        depends_on: 
-            - mongodb
-            - influxdb
-        ports: 
-            - 9092:9092
-        environment: 
-            - logFile
-            - tls
-            - mongoUri
-            - jwtKey
-            - influxToken
-            - influxOrg
-            - influxBucket
+        ports: [9092:9092]
+        env_file: .env
+        restart: unless-stopped
+        depends_on:  [mongodb]
         # volumes: 
-            # - ./data/log:/app/log
-            # - ./certs:/app/certs
+        #     - ./data/log:/app/log
+        #     - ./certs:/app/certs
 
     user-service:
         image: ghcr.io/mp281x/user-service:latest
         container_name: "user-service"
-        depends_on: 
-            - mongodb
-            - influxdb
-        ports: 
-            - 9093:9093
-        environment: 
-            - logFile
-            - tls
-            - mongoUri
-            - jwtKey
-            - influxToken
-            - influxOrg
-            - influxBucket
+        ports: [9093:9093]
+        env_file: .env
+        restart: unless-stopped
+        depends_on: [mongodb]
         # volumes: 
-            # - ./data/log:/app/log
-            # - ./certs:/app/certs
+        #     - ./data/log:/app/log
+        #     - ./certs:/app/certs
+
+
+       

@@ -62,10 +62,13 @@ func SetDbIndex(db *mongo.Database) error {
 		Options: options.Index().SetUnique(true).SetName("unique email"),
 	}
 
+	// delete all the current index
+	db.Collection("user").Indexes().DropAll(context.TODO())
+
 	// add the index to the db
 	_, err := db.Collection("user").Indexes().CreateMany(context.TODO(), []mongo.IndexModel{index1, index2})
 	if err != nil {
-		return errors.New("unable to add the index to the db")
+		return errors.New("index: " + err.Error())
 	}
 	return nil
 }

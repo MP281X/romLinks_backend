@@ -10,6 +10,7 @@ var ErrDbWrite = errors.New("unable to save the data")
 var ErrDbEdit = errors.New("unable to edit the data")
 var ErrDeviceAlreadyExist = errors.New("there is already a device with the same info")
 var ErrUserAlreadyExist = errors.New("there is already a user with the same username or email")
+var ErrReqAlreadyExist = errors.New("there is already a rom request with the same data")
 var ErrUnauthorized = errors.New("unauthorized")
 
 // encryption error

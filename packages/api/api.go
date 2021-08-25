@@ -39,7 +39,7 @@ func InitApi(routes func(*gin.Engine), port string, servicename string, l *logge
 	gin.DefaultWriter = ioutil.Discard
 
 	// intialize the influx db client
-	influx := influxdb2.NewClient("http://influxdb:8086", os.Getenv("influxToken")).WriteAPI(os.Getenv("influxOrg"), os.Getenv("influxBucket"))
+	influx := influxdb2.NewClient(os.Getenv("influxUri"), os.Getenv("influxToken")).WriteAPI(os.Getenv("influxOrg"), os.Getenv("influxBucket"))
 
 	// logging and metrics middleware
 	app.Use(func(c *gin.Context) {
