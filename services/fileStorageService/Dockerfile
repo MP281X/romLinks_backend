@@ -5,9 +5,10 @@ RUN go build -ldflags="-s -w" -o fileStorageService ./services/fileStorageServic
 RUN apk add upx
 RUN upx /app/fileStorageService
 
-FROM alpine:3.13.5
+FROM alpine:latest
+RUN apk add optipng
+RUN apk add jpegoptim
 WORKDIR /app
 COPY --from=builder /app/fileStorageService .
 
-EXPOSE 9091
 CMD [ "/app/fileStorageService" ]

@@ -41,21 +41,25 @@ func InitApi(routes func(*gin.Engine), port string, servicename string, l *logge
 	// intialize the influx db client
 	influx := influxdb2.NewClient(os.Getenv("influxUri"), os.Getenv("influxToken")).WriteAPI(os.Getenv("influxOrg"), os.Getenv("influxBucket"))
 
-	// logging and metrics middleware
-	app.Use(func(c *gin.Context) {
-		// calculate the latency
-		start := time.Now()
-		c.Next()
-		end := time.Now()
+	// use the metrics middleware
+	metrics, _ := strconv.ParseBool("metrics")
+	if metrics {
+		// logging and metrics middleware
+		app.Use(func(c *gin.Context) {
+			// calculate the latency
+			start := time.Now()
+			c.Next()
+			end := time.Now()
 
-		// add the data to the metrics db
-		p := influxdb2.NewPoint(servicename+"_routes",
-			map[string]string{"route": c.Writer.Header().Get("route"), "method": c.Request.Method},
-			map[string]interface{}{"latency": end.Sub(start).Milliseconds(), "statusCode": c.Writer.Status()},
-			time.Now())
+			// add the data to the metrics db
+			p := influxdb2.NewPoint(servicename+"_routes",
+				map[string]string{"route": c.Writer.Header().Get("route"), "method": c.Request.Method},
+				map[string]interface{}{"latency": end.Sub(start).Milliseconds(), "statusCode": c.Writer.Status()},
+				time.Now())
 
-		influx.WritePoint(p)
-	})
+			influx.WritePoint(p)
+		})
+	}
 
 	// use gzip
 	app.Use(gzip.Gzip(gzip.BestCompression))

@@ -24,6 +24,12 @@ var ErrInvUsername = errors.New("invalid username")
 var ErrInvEmail = errors.New("invalid email")
 var ErrInvPassword = errors.New("invalid password")
 
+// file error
+var ErrNotFound = errors.New("image not found")
+var ErrInvalidData = errors.New("invalid image data")
+var ErrImageSave = errors.New("unable to save the image")
+
+// select the correct response code
 func ResCode(err error) int {
 	switch err {
 	case ErrDbRead:
@@ -52,6 +58,12 @@ func ResCode(err error) int {
 		return 400
 	case ErrInvPassword:
 		return 400
+	case ErrInvalidData:
+		return 400
+	case ErrNotFound:
+		return 404
+	case ErrImageSave:
+		return 500
 	default:
 		return 400
 	}

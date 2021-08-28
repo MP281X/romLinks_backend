@@ -5,9 +5,8 @@ RUN go build -ldflags="-s -w" -o userService ./services/userService/userService.
 RUN apk add upx
 RUN upx /app/userService
 
-FROM alpine:3.13.5
+FROM alpine:latest
 WORKDIR /app
 COPY --from=builder /app/userService .
 
-EXPOSE 9093
 CMD [ "/app/userService" ]

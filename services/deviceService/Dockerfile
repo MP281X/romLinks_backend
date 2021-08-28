@@ -5,9 +5,8 @@ RUN go build -ldflags="-s -w" -o deviceService ./services/deviceService/deviceSe
 RUN apk add upx
 RUN upx /app/deviceService
 
-FROM alpine:3.13.5
+FROM alpine:latest
 WORKDIR /app
 COPY --from=builder /app/deviceService .
 
-EXPOSE 9090
 CMD [ "/app/deviceService" ]
