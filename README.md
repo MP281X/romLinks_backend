@@ -1,7 +1,7 @@
 
 # **RomLinks backend**
 ## **Find custom roms for your devices**
-<p align="center"><img src="./readme/logo.png" href="https://mp281x.xyz" title="RomLinks"></p>
+<p align="center"><a href="https://mp281x.xyz" target="_blank"><img src="./readme/logo.png"/></a></p>
 
 ## **Why?**
 I wanted to create an app to help users to find and download custom rom for their devices in an easy way <br />
@@ -104,12 +104,13 @@ If you have any suggestion contact me
 
 ## 🚀 **Languages and tools**
 
-<img src="./readme/appIcon.png" height="45" title="RomLinks Frontend" href="https://github.com/MP281X/romlinks_frontend"/>
-<img src="https://img.icons8.com/color/48/000000/golang.png"title="Golang" href="https://golang.org/"/>
-<img src="./readme/gin.png" height="44" title="Gin" href="https://github.com/gin-gonic/gin"/>
-<img src="https://img.icons8.com/color/50/000000/mongodb.png" title="MongoDB" href="https://www.mongodb.com/" />
-<img src="./readme/influxdb.png" height="44" title="InfluxDB" href="https://www.influxdata.com/"/>
-<img src="./readme/grafana.png" height="44" title="Grafana" href="https://grafana.com/"/>
-<img src="./readme/docker.png" height="44" title="Docker" href="https://www.docker.com/"/>
-<img src="./readme/compose.png" height="44" title="Docker Compose" href="https://github.com/docker/compose"/>
-<br /><br />
+<p>
+<a href="https://github.com/MP281X/romlinks_frontend" target="_blank"><img src="./readme/appIcon.png" height="44"/></a>
+<a href="https://golang.org/" target="_blank"><img src="https://img.icons8.com/color/48/000000/golang.png" height="44"/></a>
+<a href="https://github.com/gin-gonic/gin" target="_blank"><img src="./readme/gin.png" height="44"/></a>
+<a href="https://www.mongodb.com/" target="_blank"><img src="https://img.icons8.com/color/50/000000/mongodb.png" height="44"/></a>
+<a href="https://www.influxdata.com/" target="_blank"><img src="./readme/influxdb.png" height="44"/></a>
+<a href="https://grafana.com/" target="_blank"><img src="./readme/grafana.png" height="44"/></a>
+<a href="https://www.docker.com/" target="_blank"><img src="./readme/docker.png" height="44"/></a>
+<a href="https://github.com/docker/compose" target="_blank"><img src="./readme/compose.png" height="44"/></a>
+</p>
