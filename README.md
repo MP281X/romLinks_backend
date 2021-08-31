@@ -1,7 +1,6 @@
-
 # **RomLinks backend**
 ## **Find custom roms for your devices**
-<p align="center"><a href="https://mp281x.xyz" target="_blank"><img src="./readme/logo.png"/></a></p>
+<p align="center"><a href="https://romlinks.xyz" target="_blank"><img src="./readme/logo.png"/></a></p>
 
 ## **Why?**
 I wanted to create an app to help users to find and download custom rom for their devices in an easy way <br />
@@ -103,7 +102,7 @@ If you have any suggestion contact me
 <br /><br />
 
 ## 🚀 **Languages and tools**
-
+<br />
 <p>
 <a href="https://github.com/MP281X/romlinks_frontend" target="_blank"><img src="./readme/appIcon.png" height="44"/></a>
 <a href="https://golang.org/" target="_blank"><img src="https://img.icons8.com/color/48/000000/golang.png" height="44"/></a>

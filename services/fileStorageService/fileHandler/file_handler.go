@@ -89,7 +89,7 @@ func Website(l *logger.LogStruct) {
 	if tls {
 		go http.ListenAndServeTLS(":9094", "/app/certs/website.pem", "/app/certs/website.key", nil)
 		err = http.ListenAndServe(":9095", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			http.Redirect(w, r, "https://mp281x.xyz/"+r.RequestURI, http.StatusMovedPermanently)
+			http.Redirect(w, r, "https://romLinks.xyz/"+r.RequestURI, http.StatusMovedPermanently)
 		}))
 	} else {
 		http.ListenAndServe(":9094", nil)

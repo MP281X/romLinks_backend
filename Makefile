@@ -45,37 +45,37 @@ docker-build:
 #! server specific command
 # generate the ssl certificate 
 ssl-certs:
-	sudo certbot certonly --standalone -d mp281x.xyz --staple-ocsp -m paludgnachmatteo.dev@gmail.com --agree-tos
-	sudo certbot certonly --standalone -d romlinks.device.mp281x.xyz --staple-ocsp -m paludgnachmatteo.dev@gmail.com --agree-tos
-	sudo certbot certonly --standalone -d romlinks.user.mp281x.xyz --staple-ocsp -m paludgnachmatteo.dev@gmail.com --agree-tos
-	sudo certbot certonly --standalone -d romlinks.rom.mp281x.xyz --staple-ocsp -m paludgnachmatteo.dev@gmail.com --agree-tos
-	sudo certbot certonly --standalone -d romlinks.filestorage.mp281x.xyz --staple-ocsp -m paludgnachmatteo.dev@gmail.com --agree-tos
+	sudo certbot certonly --standalone -d romlinks.xyz  --staple-ocsp -m paludgnachmatteo.dev@gmail.com --agree-tos
+	sudo certbot certonly --standalone -d device.romlinks.xyz --staple-ocsp -m paludgnachmatteo.dev@gmail.com --agree-tos
+	sudo certbot certonly --standalone -d user.romlinks.xyz --staple-ocsp -m paludgnachmatteo.dev@gmail.com --agree-tos
+	sudo certbot certonly --standalone -d rom.romlinks.xyz --staple-ocsp -m paludgnachmatteo.dev@gmail.com --agree-tos
+	sudo certbot certonly --standalone -d filestorage.romlinks.xyz --staple-ocsp -m paludgnachmatteo.dev@gmail.com --agree-tos
 
 	rm ./certs/*
 	
-	sudo cp /etc/letsencrypt/live/mp281x.xyz/fullchain.pem ./certs/website.pem
-	sudo cp /etc/letsencrypt/live/mp281x.xyz/privkey.pem ./certs/website.key
+	sudo cp /etc/letsencrypt/live/romlinks.xyz/fullchain.pem ./certs/website.pem
+	sudo cp /etc/letsencrypt/live/romlinks.xyz/privkey.pem ./certs/website.key
 	sudo chown mp281x ./certs/website.pem
 	sudo chown mp281x ./certs/website.key
 
-	sudo cp /etc/letsencrypt/live/romlinks.device.mp281x.xyz/fullchain.pem ./certs/deviceService.pem
-	sudo cp /etc/letsencrypt/live/romlinks.device.mp281x.xyz/privkey.pem ./certs/deviceService.key
+	sudo cp /etc/letsencrypt/live/device.romlinks.xyz/fullchain.pem ./certs/deviceService.pem
+	sudo cp /etc/letsencrypt/live/device.romlinks.xyz/privkey.pem ./certs/deviceService.key
 	sudo chown mp281x ./certs/deviceService.pem
 	sudo chown mp281x ./certs/deviceService.key
 
 
-	sudo cp /etc/letsencrypt/live/romlinks.user.mp281x.xyz/fullchain.pem ./certs/userService.pem
-	sudo cp /etc/letsencrypt/live/romlinks.user.mp281x.xyz/privkey.pem ./certs/userService.key
+	sudo cp /etc/letsencrypt/live/user.romlinks.xyz/fullchain.pem ./certs/userService.pem
+	sudo cp /etc/letsencrypt/live/user.romlinks.xyz/privkey.pem ./certs/userService.key
 	sudo chown mp281x ./certs/userService.pem
 	sudo chown mp281x ./certs/userService.key
 
-	sudo cp /etc/letsencrypt/live/romlinks.rom.mp281x.xyz/fullchain.pem ./certs/romService.pem
-	sudo cp /etc/letsencrypt/live/romlinks.rom.mp281x.xyz/privkey.pem ./certs/romService.key
+	sudo cp /etc/letsencrypt/live/rom.romlinks.xyz/fullchain.pem ./certs/romService.pem
+	sudo cp /etc/letsencrypt/live/rom.romlinks.xyz/privkey.pem ./certs/romService.key
 	sudo chown mp281x ./certs/romService.pem
 	sudo chown mp281x ./certs/romService.key
 
-	sudo cp /etc/letsencrypt/live/romlinks.filestorage.mp281x.xyz/fullchain.pem ./certs/fileStorageService.pem
-	sudo cp /etc/letsencrypt/live/romlinks.filestorage.mp281x.xyz/privkey.pem ./certs/fileStorageService.key
+	sudo cp /etc/letsencrypt/live/filestorage.romlinks.xyz/fullchain.pem ./certs/fileStorageService.pem
+	sudo cp /etc/letsencrypt/live/filestorage.romlinks.xyz/privkey.pem ./certs/fileStorageService.key
 	sudo chown mp281x ./certs/fileStorageService.pem
 	sudo chown mp281x ./certs/fileStorageService.key
 
