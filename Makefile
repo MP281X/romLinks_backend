@@ -1,4 +1,3 @@
-
 # run all the services
 run:
 	docker-compose up -d
@@ -79,8 +78,9 @@ ssl-certs:
 	sudo chown mp281x ./certs/fileStorageService.pem
 	sudo chown mp281x ./certs/fileStorageService.key
 
-# backup the container data
+# backup the server data
 DATE := $(shell date +%d-%m-%Y)
-backup: 
-	sudo tar -zcvf ./romLinks_backup/"backup_$(DATE).tar.gz" data
-	clear
+remote-backup:
+	rm -f ./romLinks_backup/backup_$(DATE).tar.gz
+	ssh -t mp281x@mp281x.xyz "cd romLinks; sudo rm -f backup.tar.gz; sudo tar -zcvf backup.tar.gz data; sudo chmod +r backup.tar.gz; exit;"
+	scp mp281x@mp281x.xyz:/home/mp281x/romLinks/backup.tar.gz ./romLinks_backup/backup_$(DATE).tar.gz
