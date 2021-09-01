@@ -42,7 +42,7 @@ func InitApi(routes func(*gin.Engine), port string, servicename string, l *logge
 	influx := influxdb2.NewClient(os.Getenv("influxUri"), os.Getenv("influxToken")).WriteAPI(os.Getenv("influxOrg"), os.Getenv("influxBucket"))
 
 	// use the metrics middleware
-	metrics, _ := strconv.ParseBool("metrics")
+	metrics, _ := strconv.ParseBool(os.Getenv("metrics"))
 	if metrics {
 		// logging and metrics middleware
 		app.Use(func(c *gin.Context) {

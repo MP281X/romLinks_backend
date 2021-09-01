@@ -49,7 +49,7 @@ func InitLogger(serviceName string) (*LogStruct, error) {
 		serviceName := serviceName
 		var err error
 
-		var date string = time.Now().Format("01-January-2006")
+		var date string = time.Now().Format("02-January-2006")
 
 		// open/create the log file
 		out, err = os.OpenFile("./log/"+serviceName+"_"+date+".log",
