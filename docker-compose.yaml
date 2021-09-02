@@ -61,19 +61,37 @@ services:
     # grafana:
     #     image: grafana/grafana:latest
     #     container_name: "grafana"
+    #     user: '472'
     #     ports: [3000:3000]
     #     env_file: .env
     #     restart: unless-stopped
     #     depends_on: [influxdb]
-    #     volumes: [./data/grafana:/var/lib/grafana]
+    #     volumes: [./data/grafana:/var/lib/grafana]       
 
     # influxdb:
     #     image: influxdb:latest
     #     container_name: "influxdb"
     #     ports: [8086:8086]
-    #     env_file: .env
+    #     environment:
+    #         - DOCKER_INFLUXDB_INIT_MODE=setup
+    #         - DOCKER_INFLUXDB_INIT_USERNAME
+    #         - DOCKER_INFLUXDB_INIT_PASSWORD
+    #         - DOCKER_INFLUXDB_INIT_ORG=${influxOrg}
+    #         - DOCKER_INFLUXDB_INIT_BUCKET=${influxBucket}
+    #         - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=${influxToken}
     #     restart: unless-stopped
     #     volumes: 
     #         - ./data/influxdb/influx-data:/var/lib/influxdb2
     #         - ./data/influxdb/influx-config:/etc/influxdb2
+       
+    # telegraf:
+    #     image: telegraf
+    #     container_name: "telegraf"
+    #     env_file: .env
+    #     restart: unless-stopped
+    #     depends_on: [influxdb, mongodb]
+    #     volumes: [./telegraf.conf:/etc/telegraf/telegraf.conf]
+
+     
+       
        

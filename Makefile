@@ -38,10 +38,10 @@ docker-build:
 	docker push ghcr.io/mp281x/file_storage-service:latest
 	docker push ghcr.io/mp281x/device-service:latest
 	docker image prune -f
+	ssh -t mp281x@mp281x.xyz "cd romLinks; make update; exit;"
 	clear 
 	docker-compose ps
 
-#! server specific command
 # generate the ssl certificate 
 ssl-certs:
 	sudo certbot certonly --standalone -d romlinks.xyz  --staple-ocsp -m paludgnachmatteo.dev@gmail.com --agree-tos
@@ -80,7 +80,7 @@ ssl-certs:
 
 # backup the server data
 DATE := $(shell date +%d-%m-%Y)
-remote-backup:
+backup:
 	rm -f ./romLinks_backup/backup_$(DATE).tar.gz
 	ssh -t mp281x@mp281x.xyz "cd romLinks; sudo rm -f backup.tar.gz; sudo tar -zcvf backup.tar.gz data; sudo chmod +r backup.tar.gz; exit;"
 	scp mp281x@mp281x.xyz:/home/mp281x/romLinks/backup.tar.gz ./romLinks_backup/backup_$(DATE).tar.gz

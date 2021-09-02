@@ -1,0 +1,9 @@
+data/
+readme/
+romLinks_backup/
+.env
+.gitignore
+docker-compose.yaml
+LICENSE
+Makefile
+README.md
