@@ -46,7 +46,7 @@ func (l *Log) saveImage(c *gin.Context) {
 	// save the image
 	path, err := l.saveImageDB(c, token, format, androidVersion, romName, category, index)
 
-	api.ApiRes(c, err, l.L, gin.H{"res": path})
+	api.ApiRes(c, err, l.L, gin.H{"imgLink": path})
 }
 
 // save the profile picture of a user
