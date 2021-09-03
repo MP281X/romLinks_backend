@@ -68,6 +68,7 @@ func (rom *RomModel) Validate() error {
 }
 
 type EditRomModel struct {
+	Logo        string   `bson:"logo,omitempty" json:"logo,omitempty"`
 	Screenshot  []string `bson:"screenshot,omitempty" json:"screenshot,omitempty"`
 	Description string   `bson:"description,omitempty" json:"description,omitempty"`
 	Link        []string `bson:"link,omitempty" json:"link,omitempty"`

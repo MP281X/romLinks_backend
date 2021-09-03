@@ -52,10 +52,10 @@ func (l *Log) saveImageDB(c *gin.Context, token string, format string, androidVe
 	var filePath string
 
 	if category == "logo" {
-		filePath = "./asset/logo/" + tokenData.Username + "_" + romname + fmt.Sprintf("%f", androidVersion) + "." + format
+		filePath = "./asset/logo/" + tokenData.Username + "_" + romname + fmt.Sprintf("%g", androidVersion) + "." + format
 
 	} else if category == "screenshot" {
-		filePath = "./asset/screenshot/" + tokenData.Username + "_" + romname + fmt.Sprintf("%f", androidVersion) + "_" + strconv.Itoa(index) + "." + format
+		filePath = "./asset/screenshot/" + tokenData.Username + "_" + romname + fmt.Sprintf("%g", androidVersion) + "_" + strconv.Itoa(index) + "." + format
 	} else {
 		return "", logger.ErrInvalidData
 	}
