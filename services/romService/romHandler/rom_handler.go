@@ -149,9 +149,10 @@ func (r *DbLog) getVersionList(c *gin.Context) {
 	// get the params from the uri
 	codename := c.Param("codename")
 	romId := c.Param("id")
+	username := c.GetHeader("username")
 
 	// get the version list
-	versions, err := r.getVersionListDB(codename, romId)
+	versions, err := r.getVersionListDB(codename, romId, username)
 	if versions == nil {
 		versions = []*VersionModel{}
 	}
@@ -180,34 +181,6 @@ func (r *DbLog) getRomById(c *gin.Context) {
 	// return the version list
 	api.ApiRes(c, err, r.L, gin.H{"list": roms})
 
-}
-
-// return a list of rom and version uploaded by the user
-func (r *DbLog) getUploaded(c *gin.Context) {
-	c.Header("route", "get uploaded")
-
-	// get the token from the header
-	token := c.GetHeader("token")
-
-	// get a list of rom and version uploaed by the user
-	uploaded, err := r.getUploadedDB(token)
-	if uploaded == nil {
-		uploaded = &RomVersionModel{
-			Rom:     []*RomModel{},
-			Version: []*VersionModel{},
-		}
-	}
-
-	if uploaded.Rom == nil {
-		uploaded.Rom = []*RomModel{}
-	}
-
-	if uploaded.Version == nil {
-		uploaded.Version = []*VersionModel{}
-	}
-
-	// return a list of rom and version uploaed by the user
-	api.ApiRes(c, err, r.L, uploaded)
 }
 
 // add a review to the db

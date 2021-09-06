@@ -28,7 +28,6 @@ func (r *DbLog) RomRoutes(app *gin.Engine) {
 	app.GET("/versionList/:codename/:id", r.getVersionList)
 	app.GET("/verifyversion", r.getUnverifiedVersion)
 	app.PUT("/verifyversion/:versionid", r.approveVersion)
-	app.GET("/romVersion", r.getUploaded)
 
 	// review routes
 	app.PUT("/review", r.addReview)

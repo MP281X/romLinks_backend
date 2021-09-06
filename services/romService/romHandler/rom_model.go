@@ -29,6 +29,13 @@ type FilterRomModel struct {
 	Verified       bool    `bson:"verified,omitempty" json:"verified,omitempty"`
 	Codename       string  `bson:"codename,omitempty" json:"codename,omitempty"`
 	OrderBy        string  `bson:"-" json:"orderby,omitempty"`
+	Uploadedby     string  `bson:"uploadedby,omitempty" json:"uploadedby,omitempty"`
+}
+type FilterVersionModel struct {
+	Codename   string `bson:"codename,omitempty" json:"codename,omitempty"`
+	RomId      string `bson:"romid,omitempty" json:"romid,omitempty"`
+	UploadedBy string `bson:"uploadedby,omitempty" json:"uploadedby,omitempty"`
+	Verified   bool   `bson:"verified,omitempty" json:"verified,omitempty"`
 }
 
 func (rom *RomModel) Validate() error {
