@@ -62,20 +62,3 @@ func (r *DbLog) searchDeviceName(c *gin.Context) {
 	api.ApiRes(c, err, r.L, gin.H{"list": res})
 
 }
-
-// return a list of uploaded devices
-func (r *DbLog) getUploaded(c *gin.Context) {
-	c.Header("route", "get uploaded")
-
-	// get the token from the header
-	token := c.GetHeader("token")
-
-	// get a list of uploaded device
-	uploaded, err := r.getUploadedDB(token)
-	if uploaded == nil {
-		uploaded = []*DeviceModel{}
-	}
-
-	// return a list of uploaded devices
-	api.ApiRes(c, err, r.L, gin.H{"list": uploaded})
-}

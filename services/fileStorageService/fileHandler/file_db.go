@@ -137,7 +137,7 @@ func (l *Log) deleteImageDB(token string, category string, name string) error {
 	name = name[i+1:]
 
 	// build the path
-	path := "./asset/" + category + "/" + tokenData.Username + name
+	path := "./asset/" + category + "/" + tokenData.Username + "_" + name
 
 	// check if the file exist
 	if _, err := os.Stat(path); os.IsNotExist(err) {
@@ -145,7 +145,10 @@ func (l *Log) deleteImageDB(token string, category string, name string) error {
 		return logger.ErrNotFound
 	}
 
-	os.Remove(path)
+	err = os.Remove(path)
+	if err != nil {
+		return err
+	}
 
 	l.L.Info(tokenData.Username + " deleted " + name)
 
