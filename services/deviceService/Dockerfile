@@ -6,7 +6,7 @@ COPY ./go.mod ./go.mod
 COPY ./go.sum ./go.sum
 RUN go build -ldflags="-s -w" -o deviceService ./services/deviceService/deviceService.go
 RUN apk add upx
-RUN upx /app/deviceService
+RUN upx --best --lzma /app/deviceService
 
 FROM alpine:latest
 WORKDIR /app

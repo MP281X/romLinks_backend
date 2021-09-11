@@ -80,7 +80,7 @@ func setDbIndex(db *mongo.Database) error {
 			{"codename", 1},
 			{"username", 1},
 			{"romid", 1},
-			// {"msg", 1},
+			{"msg", 1},
 		},
 		Options: options.Index().SetUnique(true).SetName("unique comment"),
 	}

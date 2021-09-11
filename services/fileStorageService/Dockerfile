@@ -6,7 +6,7 @@ COPY ./go.mod ./go.mod
 COPY ./go.sum ./go.sum
 RUN go build -ldflags="-s -w" -o fileStorageService ./services/fileStorageService/fileStorageService.go
 RUN apk add upx
-RUN upx /app/fileStorageService
+RUN upx --best --lzma /app/fileStorageService
 
 FROM alpine:latest
 RUN apk add optipng
